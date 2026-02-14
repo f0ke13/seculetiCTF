@@ -13,8 +13,7 @@ POSTGRES_HOST = DB_CONFIG['host']
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.urandom(24)
-app.config[
-    'SQLALCHEMY_DATABASE_URI'] = f'postgresql://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_HOST}:5432/{POSTGRES_DB}'
+app.config['SQLALCHEMY_DATABASE_URI'] = f'postgresql://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_HOST}:5432/{POSTGRES_DB}'
 db = SQLAlchemy()
 db.init_app(app)
 
@@ -88,3 +87,4 @@ if __name__ == "__main__":
     with app.app_context():
         db.create_all()
     app.run(host="0.0.0.0", port=5000)
+
