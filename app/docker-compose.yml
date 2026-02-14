@@ -1,0 +1,27 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: etuctf
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 11111111
+    volumes:
+      - ./pgdata:/var/lib/postgresql/data
+
+  web:
+    build: .
+    container_name: etuctf_app
+    restart: always
+    depends_on:
+      - db
+    environment:
+      FLASK_ENV: development
+    ports:
+      - "5000:5000"
+    volumes:
+      - .:/app
+
+volumes:
+  postgres_data:
