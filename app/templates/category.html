@@ -2,103 +2,86 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ETUCTF Login</title>
-
-<!-- Google Font -->
+<title>ETUCTF Categories</title>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
 
 <style>
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
 body {
     font-family: 'Space Grotesk', sans-serif;
-    height: 100vh;
     background: #0a0a0a;
     color: white;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    overflow: hidden;
+    padding: 40px;
 }
 
-/* Animated grid background */
-body::before {
-    content: "";
-    position: absolute;
-    width: 200%;
-    height: 200%;
-    background-image: 
-        linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px);
-    background-size: 40px 40px;
-    animation: moveGrid 25s linear infinite;
+.container {
+    max-width: 900px;
+    margin: auto;
 }
 
-@keyframes moveGrid {
-    from { transform: translate(0,0); }
-    to { transform: translate(-40px,-40px); }
+.category {
+    margin-bottom: 40px;
 }
 
-/* Soft radial glow */
-body::after {
-    content: "";
-    position: absolute;
-    width: 600px;
-    height: 600px;
-    background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%);
-    filter: blur(80px);
-    animation: pulse 6s ease-in-out infinite alternate;
+.task {
+    background: rgba(255,255,255,0.05);
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 15px;
+    border: 1px solid rgba(255,255,255,0.1);
 }
 
-@keyframes pulse {
-    from { transform: scale(1); }
-    to { transform: scale(1.2); }
+.task.solved {
+    border: 1px solid #00ff88;
+    box-shadow: 0 0 15px rgba(0,255,136,0.4);
 }
 
-
-.title {
-    text-align: center;
-    font-size: 32px;
-    font-weight: 700;
-    letter-spacing: 4px;
-    margin-bottom: 30px;
-}
-
-.title span {
-    opacity: 0.7;
-}
-
-
-.footer {
-    text-align: center;
-    margin-top: 20px;
-    font-size: 13px;
-    opacity: 0.6;
-}
-
-.footer a {
+input {
+    width: 100%;
+    padding: 12px;
+    margin-top: 30px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 8px;
     color: white;
-    text-decoration: none;
-    border-bottom: 1px solid rgba(255,255,255,0.3);
-    transition: 0.3s;
 }
 
-.footer a:hover {
-    opacity: 1;
-    border-bottom: 1px solid white;
+button {
+    margin-top: 10px;
+    padding: 12px 20px;
+    background: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
 }
 </style>
 </head>
 
 <body>
-
 <div class="container">
-    <div class="title">ETU<span>CTF</span> CATEGORIES</div>
+
+<h1>Categories</h1>
+
+{% for category in categories %}
+<div class="category">
+    <h2>{{ category.name }}</h2>
+
+    {% for task in tasks %}
+        {% if task.category_id == category.id %}
+            <div class="task {% if task.id in solved_tasks %}solved{% endif %}">
+                <h3>{{ task.title }}</h3>
+                <p>{{ task.description }}</p>
+            </div>
+        {% endif %}
+    {% endfor %}
+</div>
+{% endfor %}
+
+<form method="POST" action="{{ url_for('submit_flag') }}">
+    <input type="text" name="flag" placeholder="Enter flag..." required>
+    <button type="submit">Submit Flag</button>
+</form>
+
 </div>
 </body>
 </html>
