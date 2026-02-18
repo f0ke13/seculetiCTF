@@ -16,13 +16,19 @@
 
 body {
     font-family: 'Space Grotesk', sans-serif;
-    height: 100vh;
+    min-height: 100vh;
     background: #0a0a0a;
     color: white;
     display: flex;
+    flex-direction: column;
+    overflow-x: hidden;
+}
+
+.main-content {
+    flex: 1;
+    display: flex;
     justify-content: center;
     align-items: center;
-    overflow: hidden;
 }
 
 /* Animated grid */
@@ -147,13 +153,71 @@ button:hover {
     opacity: 1;
     border-bottom: 1px solid white;
 }
+
+/* Navigation Menu */
+nav {
+    position: relative;
+    z-index: 1000;
+    background: rgba(20,20,20,0.9);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    padding: 15px 0;
+}
+
+nav .nav-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+nav .logo {
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: white;
+    text-decoration: none;
+}
+
+nav .nav-links {
+    display: flex;
+    gap: 30px;
+    align-items: center;
+}
+
+nav .nav-links a {
+    color: rgba(255,255,255,0.7);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    transition: 0.3s;
+    letter-spacing: 1px;
+}
+
+nav .nav-links a:hover {
+    color: white;
+}
 </style>
 </head>
 
 <body>
 
+<nav>
+    <div class="nav-container">
+        <a href="{{ url_for('login') }}" class="logo">SECULETI</a>
+        <div class="nav-links">
+            <a href="{{ url_for('about') }}">О НАС</a>
+            <a href="{{ url_for('login') }}">ВХОД</a>
+            <a href="{{ url_for('register') }}">РЕГИСТРАЦИЯ</a>
+        </div>
+    </div>
+</nav>
+
+<div class="main-content">
 <div class="container">
-    <div class="title">ETU<span>CTF</span></div>
+    <div class="title">SECULETI</div>
 
     <form id="registerForm" action="{{ url_for('register') }}" method="POST">
         <div class="input-group">
@@ -175,19 +239,19 @@ button:hover {
         Already have an account? <a href="{{ url_for('login') }}">Login</a>
     </div>
 </div>
+</div>
 
 <script>
 document.getElementById("registerForm").addEventListener("submit", function(e){
     const inputs = document.querySelectorAll("input");
-    const password = inputs[2].value;
-    const confirm = inputs[3].value;
+    const password = inputs[1].value;
+    const confirm = inputs[2].value;
 
     if (password !== confirm) {
+        e.preventDefault();
         alert("Passwords do not match");
         return;
     }
-
-    alert("Registration request sent");
 });
 </script>
 

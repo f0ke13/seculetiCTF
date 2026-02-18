@@ -13,15 +13,16 @@ services:
   web:
     build: .
     container_name: etuctf_app
-    restart: always
     depends_on:
       - db
     environment:
       FLASK_ENV: development
+      FLASK_DEBUG: 1
     ports:
       - "5000:5000"
     volumes:
       - .:/app
+      - ../front_end-demo:/app/front_end-demo
 
 volumes:
   postgres_data:
