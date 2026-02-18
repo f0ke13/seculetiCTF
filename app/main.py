@@ -3,6 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.exc import IntegrityError
 from config import DB_CONFIG
 from functools import wraps
+from datetime import datetime
 import bcrypt
 import os
 
@@ -23,8 +24,6 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(150), unique=True, nullable=False)
     password = db.Column(db.String(255), nullable=False)
-<<<<<<< Updated upstream
-=======
 
 
 class Task(db.Model):
@@ -48,7 +47,6 @@ class Solve(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     task_id = db.Column(db.Integer, db.ForeignKey('tasks.id'))
     solved_at = db.Column(db.DateTime, default=datetime.utcnow)
->>>>>>> Stashed changes
 
 
 @app.route('/')
@@ -109,16 +107,6 @@ def login_required(f):
 @app.route('/category', methods=['GET'])
 @login_required
 def category():
-<<<<<<< Updated upstream
-    return render_template('category.html')
-
-
-if __name__ == "__main__":
-    with app.app_context():
-        db.create_all()
-    app.run(host="0.0.0.0", port=5000)
-
-=======
     categories = Category.query.all()
     tasks = Task.query.all()
     solved = Solve.query.filter_by(user_id=session['user_id']).all()
@@ -191,4 +179,3 @@ if __name__ == "__main__":
         db.create_all()
         seed()
     app.run(host="0.0.0.0", port=5000, debug=True, use_reloader=True)
->>>>>>> Stashed changes
