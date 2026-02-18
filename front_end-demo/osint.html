@@ -9,6 +9,11 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
+        html, body {
+            height: 100%;
+            overflow: hidden;
+        }
+
         body {
             font-family: 'Space Grotesk', sans-serif;
             min-height: 100vh;
@@ -16,17 +21,95 @@
             color: white;
             display: flex;
             flex-direction: column;
-            overflow-x: hidden;
             position: relative;
         }
 
+        /* Navigation Menu - DeadSec VHS стиль */
         nav {
             position: relative;
             z-index: 1000;
-            background: rgba(20,20,20,0.95);
-            backdrop-filter: blur(12px);
+            background: rgba(8,8,8,0.92);
+            backdrop-filter: blur(8px);
             border-bottom: 1px solid rgba(255,255,255,0.1);
             padding: 14px 0;
+            overflow: hidden;
+            animation: navGlitch 4s infinite;
+        }
+
+        /* VHS scanlines на всю шапку */
+        nav::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                repeating-linear-gradient(
+                    0deg,
+                    transparent,
+                    transparent 1px,
+                    rgba(255,255,255,0.03) 1px,
+                    rgba(255,255,255,0.03) 2px
+                );
+            pointer-events: none;
+            animation: scanMove 4s linear infinite;
+        }
+
+        /* VHS glitch overlay на всю шапку */
+        nav::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                linear-gradient(90deg, 
+                    transparent 0%, 
+                    rgba(255,255,255,0.03) 15%,
+                    transparent 30%,
+                    rgba(255,255,255,0.02) 50%,
+                    transparent 70%,
+                    rgba(255,255,255,0.03) 85%,
+                    transparent 100%
+                );
+            background-size: 300% 100%;
+            animation: vhsFlicker 0.1s infinite, vhsShift 3s ease-in-out infinite, navDistort 8s infinite;
+            pointer-events: none;
+        }
+
+        @keyframes scanMove {
+            0% { background-position: 0 0; }
+            100% { background-position: 0 4px; }
+        }
+
+        @keyframes vhsFlicker {
+            0%, 100% { opacity: 0.7; }
+            25% { opacity: 1; }
+            50% { opacity: 0.8; }
+            75% { opacity: 0.95; }
+        }
+
+        @keyframes vhsShift {
+            0%, 100% { background-position: 300% 0; }
+            50% { background-position: -300% 0; }
+        }
+
+        @keyframes navGlitch {
+            0%, 95%, 100% { transform: translate(0); }
+            96% { transform: translate(-2px, 0); }
+            97% { transform: translate(2px, 0); }
+            98% { transform: translate(-1px, 0); }
+            99% { transform: translate(1px, 0); }
+        }
+
+        @keyframes navDistort {
+            0%, 90%, 100% { clip-path: inset(0); }
+            91% { clip-path: inset(10% 0 80% 0); }
+            92% { clip-path: inset(40% 0 40% 0); }
+            93% { clip-path: inset(80% 0 10% 0); }
+            94% { clip-path: inset(0); }
         }
 
         .nav-container {
@@ -36,17 +119,170 @@
             display: flex;
             align-items: center;
             gap: 40px;
+            position: relative;
+            z-index: 1;
         }
 
-        .logo { font-size: 20px; font-weight: 700; letter-spacing: 2px; color: white; text-decoration: none; }
+        /* DeadSec glitch effect on logo */
+        .logo { 
+            font-size: 20px; 
+            font-weight: 700; 
+            letter-spacing: 4px; 
+            color: white;
+            text-decoration: none; 
+            position: relative;
+            display: inline-block;
+            text-transform: uppercase;
+            animation: logoGlitch 5s infinite;
+        }
+
+        .logo::before,
+        .logo::after {
+            content: 'SECULETI';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+        }
+
+        .logo::before {
+            color: rgba(255,255,255,0.8);
+            animation: deadsecGlitch1 3s infinite;
+        }
+
+        .logo::after {
+            color: rgba(255,255,255,0.5);
+            animation: deadsecGlitch2 2.5s infinite;
+        }
+
+        @keyframes logoGlitch {
+            0%, 92%, 100% { transform: translate(0); filter: none; }
+            93% { transform: translate(-3px, 1px); }
+            94% { transform: translate(2px, -1px); filter: blur(0.5px); }
+            95% { transform: translate(-1px, 2px); }
+            96% { transform: translate(3px, -2px); }
+            97% { transform: translate(0); }
+        }
+
+        @keyframes deadsecGlitch1 {
+            0%, 88%, 100% { opacity: 0; transform: translate(0); }
+            89% { opacity: 0.8; transform: translate(-3px, 1px); }
+            90% { opacity: 0.6; transform: translate(3px, -1px); }
+            91% { opacity: 0.4; transform: translate(-2px, 2px); }
+            92% { opacity: 0; transform: translate(0); }
+        }
+
+        @keyframes deadsecGlitch2 {
+            0%, 83%, 100% { opacity: 0; transform: translate(0); }
+            84% { opacity: 0.6; transform: translate(2px, 2px); }
+            85% { opacity: 0.4; transform: translate(-2px, -1px); }
+            86% { opacity: 0.3; transform: translate(1px, -2px); }
+            87% { opacity: 0; transform: translate(0); }
+        }
+
         .nav-links { display: flex; gap: 30px; align-items: center; margin-left: auto; }
-        .nav-links a { color: rgba(255,255,255,0.7); text-decoration: none; font-size: 14px; font-weight: 500; letter-spacing: 1px; transition: 0.3s; }
-        .nav-links a:hover { color: white; }
-        .logout-btn { background: rgba(255,255,255,0.1); padding: 8px 20px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); color: white; text-decoration: none; }
+        .nav-links a { 
+            color: rgba(255,255,255,0.7); 
+            text-decoration: none; 
+            font-size: 13px; 
+            font-weight: 500; 
+            letter-spacing: 2px; 
+            text-transform: uppercase;
+            transition: all 0.2s ease;
+            position: relative;
+            padding: 5px 0;
+        }
+
+        /* VHS-стиль hover эффект для ссылок */
+        .nav-links a::before {
+            content: attr(data-text);
+            position: absolute;
+            top: 5px;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            color: rgba(255,255,255,0.3);
+            opacity: 0;
+            transform: translate(0);
+            transition: all 0.1s ease;
+        }
+
+        .nav-links a::after {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: white;
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.3s ease;
+            box-shadow: 0 0 8px rgba(255,255,255,0.6), 0 0 2px white;
+        }
+
+        .nav-links a:hover { 
+            color: white;
+            text-shadow: 
+                0 0 10px rgba(255,255,255,0.8),
+                2px 0 0 rgba(255,255,255,0.2),
+                -2px 0 0 rgba(255,255,255,0.2);
+            animation: linkGlitch 0.3s ease;
+        }
+
+        .nav-links a:hover::before {
+            opacity: 1;
+            animation: linkGhostGlitch 0.4s infinite;
+        }
+
+        .nav-links a:hover::after {
+            transform: scaleX(1);
+            animation: lineGlitch 0.5s ease forwards;
+        }
+
+        @keyframes linkGlitch {
+            0% { transform: translate(0); }
+            20% { transform: translate(-2px, 1px); }
+            40% { transform: translate(2px, -1px); }
+            60% { transform: translate(-1px, -1px); }
+            80% { transform: translate(1px, 1px); }
+            100% { transform: translate(0); }
+        }
+
+        @keyframes linkGhostGlitch {
+            0%, 100% { transform: translate(0); opacity: 0.3; }
+            25% { transform: translate(-2px, 1px); opacity: 0.5; }
+            50% { transform: translate(2px, -1px); opacity: 0.2; }
+            75% { transform: translate(-1px, 2px); opacity: 0.4; }
+        }
+
+        @keyframes lineGlitch {
+            0% { transform: scaleX(0); }
+            20% { transform: scaleX(0.3) translateX(-5px); }
+            40% { transform: scaleX(0.6) translateX(3px); }
+            60% { transform: scaleX(0.8) translateX(-2px); }
+            80% { transform: scaleX(0.95) translateX(1px); }
+            100% { transform: scaleX(1) translateX(0); }
+        }
+
+        .logout-btn { 
+            background: rgba(255,255,255,0.08);
+            padding: 8px 20px; 
+            border-radius: 8px; 
+            border: 1px solid rgba(255,255,255,0.2); 
+            color: white; 
+            text-decoration: none;
+        }
+        .logout-btn:hover {
+            background: rgba(255,255,255,0.12);
+            border-color: rgba(255,255,255,0.3);
+        }
 
         .flag-bar {
             background: rgba(15,15,15,0.95);
-            border: 1px solid #ffffff;
+            border: 1px solid rgba(255,255,255,0.5);
             border-radius: 10px;
             padding: 6px 10px;
             display: flex;
@@ -76,16 +312,19 @@
 
         body::before {
             content: "";
-            position: absolute;
-            width: 200%;
-            height: 200%;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             background-image: linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
                               linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
             background-size: 40px 40px;
             animation: moveGrid 30s linear infinite;
             z-index: 1;
+            pointer-events: none;
         }
-        @keyframes moveGrid { from { transform: translate(0,0); } to { transform: translate(-40px,-40px); } }
+        @keyframes moveGrid { from { background-position: 0 0; } to { background-position: -40px -40px; } }
 
         .main-content {
             flex: 1;
@@ -95,6 +334,7 @@
             padding: 40px 20px;
             position: relative;
             z-index: 2;
+            overflow: auto;
         }
 
         .container {
@@ -246,7 +486,7 @@
             body: `flag=${encodeURIComponent(flag)}`
         })
         .then(r => r.json())
-        .then(data => {
+        .then data => {
             if (data.success) {
                 const card = document.getElementById('taskCard');
                 card.classList.add('solved');
