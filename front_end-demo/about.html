@@ -213,12 +213,11 @@ body::after {
 nav {
     position: relative;
     z-index: 1000;
-    background: rgba(8,8,8,0.92);
+    background: transparent;
     backdrop-filter: blur(8px);
     border-bottom: 1px solid rgba(255,255,255,0.1);
     padding: 15px 0;
     overflow: hidden;
-    animation: navGlitch 4s infinite;
 }
 
 /* VHS scanlines на всю шапку */
@@ -260,7 +259,7 @@ nav::after {
             transparent 100%
         );
     background-size: 300% 100%;
-    animation: vhsFlicker 0.1s infinite, vhsShift 3s ease-in-out infinite, navDistort 8s infinite;
+    animation: vhsFlicker 0.5s infinite, vhsShift 6s ease-in-out infinite;
     pointer-events: none;
 }
 
@@ -307,7 +306,7 @@ nav .logo {
     position: relative;
     display: inline-block;
     text-transform: uppercase;
-    animation: logoGlitch 5s infinite;
+    animation: logoGlitch 8s infinite;
 }
 
 nav .logo::before,
@@ -323,37 +322,36 @@ nav .logo::after {
 
 nav .logo::before {
     color: rgba(255,255,255,0.8);
-    animation: deadsecGlitch1 3s infinite;
+    animation: deadsecGlitch1 6s infinite;
 }
 
 nav .logo::after {
     color: rgba(255,255,255,0.5);
-    animation: deadsecGlitch2 2.5s infinite;
+    animation: deadsecGlitch2 5s infinite;
 }
 
 @keyframes logoGlitch {
-    0%, 92%, 100% { transform: translate(0); filter: none; }
-    93% { transform: translate(-3px, 1px); }
-    94% { transform: translate(2px, -1px); filter: blur(0.5px); }
-    95% { transform: translate(-1px, 2px); }
-    96% { transform: translate(3px, -2px); }
-    97% { transform: translate(0); }
+    0%, 95%, 100% { filter: none; }
+    96% { filter: blur(0.2px); }
+    97% { filter: none; }
+    98% { filter: blur(0.1px); }
+    99% { filter: none; }
 }
 
 @keyframes deadsecGlitch1 {
-    0%, 88%, 100% { opacity: 0; transform: translate(0); }
-    89% { opacity: 0.8; transform: translate(-3px, 1px); }
-    90% { opacity: 0.6; transform: translate(3px, -1px); }
-    91% { opacity: 0.4; transform: translate(-2px, 2px); }
-    92% { opacity: 0; transform: translate(0); }
+    0%, 95%, 100% { opacity: 0; transform: translate(0); }
+    96% { opacity: 0.4; transform: translate(-1px, 0.5px); }
+    97% { opacity: 0.3; transform: translate(1px, -0.5px); }
+    98% { opacity: 0.2; transform: translate(-0.5px, 0.5px); }
+    99% { opacity: 0.1; transform: translate(0.5px, -0.5px); }
 }
 
 @keyframes deadsecGlitch2 {
-    0%, 83%, 100% { opacity: 0; transform: translate(0); }
-    84% { opacity: 0.6; transform: translate(2px, 2px); }
-    85% { opacity: 0.4; transform: translate(-2px, -1px); }
-    86% { opacity: 0.3; transform: translate(1px, -2px); }
-    87% { opacity: 0; transform: translate(0); }
+    0%, 95%, 100% { opacity: 0; transform: translate(0); }
+    96% { opacity: 0.3; transform: translate(1px, 1px); }
+    97% { opacity: 0.2; transform: translate(-1px, -0.5px); }
+    98% { opacity: 0.1; transform: translate(0.5px, -1px); }
+    99% { opacity: 0.05; transform: translate(-0.5px, 1px); }
 }
 
 nav .nav-container {
@@ -415,46 +413,32 @@ nav .nav-links a::after {
 
 nav .nav-links a:hover {
     color: white;
-    text-shadow: 
+    text-shadow:
         0 0 10px rgba(255,255,255,0.8),
         2px 0 0 rgba(255,255,255,0.2),
         -2px 0 0 rgba(255,255,255,0.2);
-    animation: linkGlitch 0.3s ease;
+    animation: linkGlitch 0.5s ease-in-out;
 }
 
 nav .nav-links a:hover::before {
     opacity: 1;
-    animation: linkGhostGlitch 0.4s infinite;
-}
-
-nav .nav-links a:hover::after {
-    transform: scaleX(1);
-    animation: lineGlitch 0.5s ease forwards;
+    animation: linkGhostGlitch 0.6s infinite ease-in-out;
 }
 
 @keyframes linkGlitch {
     0% { transform: translate(0); }
-    20% { transform: translate(-2px, 1px); }
-    40% { transform: translate(2px, -1px); }
-    60% { transform: translate(-1px, -1px); }
-    80% { transform: translate(1px, 1px); }
+    20% { transform: translate(-1px, 0.5px); }
+    40% { transform: translate(1px, -0.5px); }
+    60% { transform: translate(-0.5px, -0.5px); }
+    80% { transform: translate(0.5px, 0.5px); }
     100% { transform: translate(0); }
 }
 
 @keyframes linkGhostGlitch {
     0%, 100% { transform: translate(0); opacity: 0.3; }
-    25% { transform: translate(-2px, 1px); opacity: 0.5; }
-    50% { transform: translate(2px, -1px); opacity: 0.2; }
-    75% { transform: translate(-1px, 2px); opacity: 0.4; }
-}
-
-@keyframes lineGlitch {
-    0% { transform: scaleX(0); }
-    20% { transform: scaleX(0.3) translateX(-5px); }
-    40% { transform: scaleX(0.6) translateX(3px); }
-    60% { transform: scaleX(0.8) translateX(-2px); }
-    80% { transform: scaleX(0.95) translateX(1px); }
-    100% { transform: scaleX(1) translateX(0); }
+    25% { transform: translate(-1px, 0.5px); opacity: 0.5; }
+    50% { transform: translate(1px, -0.5px); opacity: 0.2; }
+    75% { transform: translate(-0.5px, 1px); opacity: 0.4; }
 }
 
 nav .logout-btn {
@@ -476,13 +460,13 @@ nav .logout-btn:hover {
     <div class="nav-container">
         <a href="{% if session.get('user_id') %}{{ url_for('category') }}{% else %}{{ url_for('login') }}{% endif %}" class="logo">SECULETI</a>
         <div class="nav-links">
-            <a href="{{ url_for('about') }}">О НАС</a>
+            <a href="{{ url_for('about') }}" data-text="О НАС">О НАС</a>
             {% if session.get('user_id') %}
-                <a href="{{ url_for('category') }}">КАТЕГОРИИ</a>
-                <a href="#" class="logout-btn" onclick="if(confirm('Выйти?')) window.location.href='{{ url_for('logout') }}'; return false;">ВЫХОД</a>
+                <a href="{{ url_for('category') }}" data-text="КАТЕГОРИИ">КАТЕГОРИИ</a>
+                <a href="#" class="logout-btn" data-text="ВЫХОД" onclick="if(confirm('Выйти?')) window.location.href='{{ url_for('logout') }}'; return false;">ВЫХОД</a>
             {% else %}
-                <a href="{{ url_for('login') }}">ВХОД</a>
-                <a href="{{ url_for('register') }}">РЕГИСТРАЦИЯ</a>
+                <a href="{{ url_for('login') }}" data-text="ВХОД">ВХОД</a>
+                <a href="{{ url_for('register') }}" data-text="РЕГИСТРАЦИЯ">РЕГИСТРАЦИЯ</a>
             {% endif %}
         </div>
     </div>

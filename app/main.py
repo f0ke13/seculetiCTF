@@ -32,6 +32,7 @@ class Task(db.Model):
     title = db.Column(db.String(200), nullable=False)
     description = db.Column(db.Text, nullable=False)
     flag_hash = db.Column(db.String(255), nullable=False)
+    points = db.Column(db.Integer, default=100)
     category_id = db.Column(db.Integer, db.ForeignKey('categories.id'), nullable=False)
 
 
@@ -51,7 +52,9 @@ class Solve(db.Model):
 
 @app.route('/')
 def index():
-    return redirect(url_for('login'))
+    if 'user_id' in session:
+        return redirect(url_for('category'))
+    return render_template('main.html')
 
 
 @app.route('/about', methods=['GET'])
@@ -154,6 +157,25 @@ def osint():
     return render_template('osint.html', task=task, solved=solved)
 
 
+@app.route('/beginner')
+@login_required
+def beginner():
+    # Получаем задания Beginner по названиям
+    task1 = Task.query.filter_by(title="Beginner Task 1").first()
+    task2 = Task.query.filter_by(title="Beginner Task 2").first()
+    task3 = Task.query.filter_by(title="Beginner Task 3").first()
+    
+    # Проверяем решены ли задания
+    task1_solved = Solve.query.filter_by(user_id=session['user_id'], task_id=task1.id).first() is not None if task1 else False
+    task2_solved = Solve.query.filter_by(user_id=session['user_id'], task_id=task2.id).first() is not None if task2 else False
+    task3_solved = Solve.query.filter_by(user_id=session['user_id'], task_id=task3.id).first() is not None if task3 else False
+    
+    return render_template('begginer.html', 
+                           task1_solved=task1_solved,
+                           task2_solved=task2_solved,
+                           task3_solved=task3_solved)
+
+
 def seed():
     # OSINT категория + задание "Анонимный спортсмен"
     if not Category.query.filter_by(name="OSINT").first():
@@ -168,14 +190,70 @@ def seed():
             title="Анонимный спортсмен",
             description="Привет, я слышал, что ты можешь вычислить человека по IP...",
             flag_hash=hashed,
+            points=1000,
             category_id=osint_cat.id
         )
         db.session.add(task)
         db.session.commit()
 
+    if not Category.query.filter_by(name="Beginner").first():
+        beginner_cat = Category(name="Beginner")
+        db.session.add(beginner_cat)
+        db.session.commit()
+
+        flag1 = b"seculeti{Plz_D0nt_C0mm3nt_th1$}"
+        hash1 = bcrypt.hashpw(flag1, bcrypt.gensalt()).decode('utf-8')
+        task1 = Task(
+            title="Без комментариев",
+            description="Все с чего-то начинают, даже если у тебя нет инструментов для этого.",
+            flag_hash=hash1,
+            points=15,
+            category_id=beginner_cat.id
+        )
+        db.session.add(task1)
+
+        flag2 = b"seculeti{3350971088}"
+        hash2 = bcrypt.hashpw(flag2, bcrypt.gensalt()).decode('utf-8')
+        task2 = Task(
+            title="Little Osinter",
+            description="Описание второго задания",
+            flag_hash=hash2,
+            points=25,
+            category_id=beginner_cat.id
+        )
+        db.session.add(task2)
+
+        flag3 = b"seculeti{Th4t$T0oCl1ch3N0tEv3rCrypt0}"
+        hash3 = bcrypt.hashpw(flag3, bcrypt.gensalt()).decode('utf-8')
+        task3 = Task(
+            title="Крипто-пароль",
+            description="Описание третьего задания",
+            flag_hash=hash3,
+            points=200,
+            category_id=beginner_cat.id
+        )
+        db.session.add(task3)
+
+        db.session.commit()
+
+
+def migrate_db():
+    """Добавляет недостающие колонки в существующие таблицы"""
+    from sqlalchemy import text
+
+    with db.engine.connect() as conn:
+        result = conn.execute(text("""
+            SELECT column_name FROM information_schema.columns 
+            WHERE table_name='tasks' AND column_name='points'
+        """))
+        if result.fetchone() is None:
+            conn.execute(text("ALTER TABLE tasks ADD COLUMN points INTEGER DEFAULT 100"))
+            conn.commit()
+
 
 if __name__ == "__main__":
     with app.app_context():
         db.create_all()
+        migrate_db()
         seed()
     app.run(host="0.0.0.0", port=5000, debug=True, use_reloader=True)
