@@ -161,9 +161,9 @@ def osint():
 @login_required
 def beginner():
     # Получаем задания Beginner по названиям
-    task1 = Task.query.filter_by(title="Beginner Task 1").first()
-    task2 = Task.query.filter_by(title="Beginner Task 2").first()
-    task3 = Task.query.filter_by(title="Beginner Task 3").first()
+    task1 = Task.query.filter_by(title="Без комментариев").first()
+    task2 = Task.query.filter_by(title="Little Osinter").first()
+    task3 = Task.query.filter_by(title="Крипто-ключ").first()
     
     # Проверяем решены ли задания
     task1_solved = Solve.query.filter_by(user_id=session['user_id'], task_id=task1.id).first() is not None if task1 else False
@@ -196,11 +196,15 @@ def seed():
         db.session.add(task)
         db.session.commit()
 
-    if not Category.query.filter_by(name="Beginner").first():
+    # Beginner категория + 3 задания
+    beginner_cat = Category.query.filter_by(name="Beginner").first()
+    if not beginner_cat:
         beginner_cat = Category(name="Beginner")
         db.session.add(beginner_cat)
         db.session.commit()
 
+    # Задание 1: Без комментариев
+    if not Task.query.filter_by(title="Без комментариев").first():
         flag1 = b"seculeti{Plz_D0nt_C0mm3nt_th1$}"
         hash1 = bcrypt.hashpw(flag1, bcrypt.gensalt()).decode('utf-8')
         task1 = Task(
@@ -211,29 +215,34 @@ def seed():
             category_id=beginner_cat.id
         )
         db.session.add(task1)
+        db.session.commit()
 
+    # Задание 2: Little Osinter
+    if not Task.query.filter_by(title="Little Osinter").first():
         flag2 = b"seculeti{3350971088}"
         hash2 = bcrypt.hashpw(flag2, bcrypt.gensalt()).decode('utf-8')
         task2 = Task(
             title="Little Osinter",
-            description="Описание второго задания",
+            description="Команда seculeti уже десятый раз меняет название своей группы...",
             flag_hash=hash2,
             points=25,
             category_id=beginner_cat.id
         )
         db.session.add(task2)
+        db.session.commit()
 
+    # Задание 3: Крипто-ключ
+    if not Task.query.filter_by(title="Крипто-ключ").first():
         flag3 = b"seculeti{Th4t$T0oCl1ch3N0tEv3rCrypt0}"
         hash3 = bcrypt.hashpw(flag3, bcrypt.gensalt()).decode('utf-8')
         task3 = Task(
-            title="Крипто-пароль",
-            description="Описание третьего задания",
+            title="Крипто-ключ",
+            description="Сколько раз говорить ему не оставлять пароли на столе..",
             flag_hash=hash3,
-            points=200,
+            points=15,
             category_id=beginner_cat.id
         )
         db.session.add(task3)
-
         db.session.commit()
 
 
