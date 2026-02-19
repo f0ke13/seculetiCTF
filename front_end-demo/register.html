@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ETUCTF Register</title>
+<title>SECULETI CTF Register</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
 
@@ -170,12 +170,11 @@ button:hover {
 nav {
     position: relative;
     z-index: 1000;
-    background: rgba(8,8,8,0.92);
+    background: transparent;
     backdrop-filter: blur(8px);
     border-bottom: 1px solid rgba(255,255,255,0.1);
     padding: 15px 0;
     overflow: hidden;
-    animation: navGlitch 4s infinite;
 }
 
 /* VHS scanlines на всю шапку */
@@ -186,7 +185,7 @@ nav::before {
     left: 0;
     right: 0;
     bottom: 0;
-    background: 
+    background:
         repeating-linear-gradient(
             0deg,
             transparent,
@@ -206,9 +205,9 @@ nav::after {
     left: 0;
     right: 0;
     bottom: 0;
-    background: 
-        linear-gradient(90deg, 
-            transparent 0%, 
+    background:
+        linear-gradient(90deg,
+            transparent 0%,
             rgba(255,255,255,0.03) 15%,
             transparent 30%,
             rgba(255,255,255,0.02) 50%,
@@ -217,7 +216,7 @@ nav::after {
             transparent 100%
         );
     background-size: 300% 100%;
-    animation: vhsFlicker 0.1s infinite, vhsShift 3s ease-in-out infinite, navDistort 8s infinite;
+    animation: vhsFlicker 0.5s infinite, vhsShift 6s ease-in-out infinite;
     pointer-events: none;
 }
 
@@ -238,22 +237,6 @@ nav::after {
     50% { background-position: -300% 0; }
 }
 
-@keyframes navGlitch {
-    0%, 95%, 100% { transform: translate(0); }
-    96% { transform: translate(-2px, 0); }
-    97% { transform: translate(2px, 0); }
-    98% { transform: translate(-1px, 0); }
-    99% { transform: translate(1px, 0); }
-}
-
-@keyframes navDistort {
-    0%, 90%, 100% { clip-path: inset(0); }
-    91% { clip-path: inset(10% 0 80% 0); }
-    92% { clip-path: inset(40% 0 40% 0); }
-    93% { clip-path: inset(80% 0 10% 0); }
-    94% { clip-path: inset(0); }
-}
-
 /* DeadSec glitch effect on logo */
 nav .logo {
     font-size: 20px;
@@ -264,7 +247,7 @@ nav .logo {
     position: relative;
     display: inline-block;
     text-transform: uppercase;
-    animation: logoGlitch 5s infinite;
+    animation: logoGlitch 8s infinite;
 }
 
 nav .logo::before,
@@ -280,37 +263,36 @@ nav .logo::after {
 
 nav .logo::before {
     color: rgba(255,255,255,0.8);
-    animation: deadsecGlitch1 3s infinite;
+    animation: deadsecGlitch1 6s infinite;
 }
 
 nav .logo::after {
     color: rgba(255,255,255,0.5);
-    animation: deadsecGlitch2 2.5s infinite;
+    animation: deadsecGlitch2 5s infinite;
 }
 
 @keyframes logoGlitch {
-    0%, 92%, 100% { transform: translate(0); filter: none; }
-    93% { transform: translate(-3px, 1px); }
-    94% { transform: translate(2px, -1px); filter: blur(0.5px); }
-    95% { transform: translate(-1px, 2px); }
-    96% { transform: translate(3px, -2px); }
-    97% { transform: translate(0); }
+    0%, 95%, 100% { filter: none; }
+    96% { filter: blur(0.2px); }
+    97% { filter: none; }
+    98% { filter: blur(0.1px); }
+    99% { filter: none; }
 }
 
 @keyframes deadsecGlitch1 {
-    0%, 88%, 100% { opacity: 0; transform: translate(0); }
-    89% { opacity: 0.8; transform: translate(-3px, 1px); }
-    90% { opacity: 0.6; transform: translate(3px, -1px); }
-    91% { opacity: 0.4; transform: translate(-2px, 2px); }
-    92% { opacity: 0; transform: translate(0); }
+    0%, 95%, 100% { opacity: 0; transform: translate(0); }
+    96% { opacity: 0.4; transform: translate(-1px, 0.5px); }
+    97% { opacity: 0.3; transform: translate(1px, -0.5px); }
+    98% { opacity: 0.2; transform: translate(-0.5px, 0.5px); }
+    99% { opacity: 0.1; transform: translate(0.5px, -0.5px); }
 }
 
 @keyframes deadsecGlitch2 {
-    0%, 83%, 100% { opacity: 0; transform: translate(0); }
-    84% { opacity: 0.6; transform: translate(2px, 2px); }
-    85% { opacity: 0.4; transform: translate(-2px, -1px); }
-    86% { opacity: 0.3; transform: translate(1px, -2px); }
-    87% { opacity: 0; transform: translate(0); }
+    0%, 95%, 100% { opacity: 0; transform: translate(0); }
+    96% { opacity: 0.3; transform: translate(1px, 1px); }
+    97% { opacity: 0.2; transform: translate(-1px, -0.5px); }
+    98% { opacity: 0.1; transform: translate(0.5px, -1px); }
+    99% { opacity: 0.05; transform: translate(-0.5px, 1px); }
 }
 
 nav .nav-container {
@@ -356,62 +338,34 @@ nav .nav-links a::before {
     transition: all 0.1s ease;
 }
 
-nav .nav-links a::after {
-    content: "";
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 2px;
-    background: white;
-    transform: scaleX(0);
-    transform-origin: left;
-    transition: transform 0.3s ease;
-    box-shadow: 0 0 8px rgba(255,255,255,0.6), 0 0 2px white;
-}
-
 nav .nav-links a:hover {
     color: white;
-    text-shadow: 
+    text-shadow:
         0 0 10px rgba(255,255,255,0.8),
         2px 0 0 rgba(255,255,255,0.2),
         -2px 0 0 rgba(255,255,255,0.2);
-    animation: linkGlitch 0.3s ease;
+    animation: linkGlitch 0.5s ease-in-out;
 }
 
 nav .nav-links a:hover::before {
     opacity: 1;
-    animation: linkGhostGlitch 0.4s infinite;
-}
-
-nav .nav-links a:hover::after {
-    transform: scaleX(1);
-    animation: lineGlitch 0.5s ease forwards;
+    animation: linkGhostGlitch 0.6s infinite ease-in-out;
 }
 
 @keyframes linkGlitch {
     0% { transform: translate(0); }
-    20% { transform: translate(-2px, 1px); }
-    40% { transform: translate(2px, -1px); }
-    60% { transform: translate(-1px, -1px); }
-    80% { transform: translate(1px, 1px); }
+    20% { transform: translate(-1px, 0.5px); }
+    40% { transform: translate(1px, -0.5px); }
+    60% { transform: translate(-0.5px, -0.5px); }
+    80% { transform: translate(0.5px, 0.5px); }
     100% { transform: translate(0); }
 }
 
 @keyframes linkGhostGlitch {
     0%, 100% { transform: translate(0); opacity: 0.3; }
-    25% { transform: translate(-2px, 1px); opacity: 0.5; }
-    50% { transform: translate(2px, -1px); opacity: 0.2; }
-    75% { transform: translate(-1px, 2px); opacity: 0.4; }
-}
-
-@keyframes lineGlitch {
-    0% { transform: scaleX(0); }
-    20% { transform: scaleX(0.3) translateX(-5px); }
-    40% { transform: scaleX(0.6) translateX(3px); }
-    60% { transform: scaleX(0.8) translateX(-2px); }
-    80% { transform: scaleX(0.95) translateX(1px); }
-    100% { transform: scaleX(1) translateX(0); }
+    25% { transform: translate(-1px, 0.5px); opacity: 0.5; }
+    50% { transform: translate(1px, -0.5px); opacity: 0.2; }
+    75% { transform: translate(-0.5px, 1px); opacity: 0.4; }
 }
 </style>
 </head>
@@ -422,9 +376,9 @@ nav .nav-links a:hover::after {
     <div class="nav-container">
         <a href="{{ url_for('login') }}" class="logo">SECULETI</a>
         <div class="nav-links">
-            <a href="{{ url_for('about') }}">О НАС</a>
-            <a href="{{ url_for('login') }}">ВХОД</a>
-            <a href="{{ url_for('register') }}">РЕГИСТРАЦИЯ</a>
+            <a href="{{ url_for('about') }}" data-text="О НАС">О НАС</a>
+            <a href="{{ url_for('login') }}" data-text="ВХОД">ВХОД</a>
+            <a href="{{ url_for('register') }}" data-text="РЕГИСТРАЦИЯ">РЕГИСТРАЦИЯ</a>
         </div>
     </div>
 </nav>
