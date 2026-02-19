@@ -28,6 +28,7 @@ services:
       - "5000:5000"
     volumes:
       - .:/app
+      - ../front_end-demo:/app/templates
       - ../front_end-demo:/app/front_end-demo
 
 volumes:

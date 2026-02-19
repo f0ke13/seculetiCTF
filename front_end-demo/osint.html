@@ -440,7 +440,7 @@
             <a href="{{ url_for('about') }}">О НАС</a>
             <a href="{{ url_for('category') }}">КАТЕГОРИИ</a>
             {% if session.get('user_id') %}
-                <a href="#" class="logout-btn" onclick="if(confirm('Выйти?')) window.location.href='{{ url_for('logout') }}'; return false;">ВЫХОД</a>
+                <a href="{{ url_for('logout') }}" class="logout-btn" onclick="return confirm('Выйти?');">ВЫХОД</a>
             {% endif %}
         </div>
     </div>
@@ -450,7 +450,7 @@
     <div class="container">
         <h1>OSINT</h1>
 
-        <div id="taskCard" class="task-card" data-solved="{{ 'true' if solved else 'false' }}">
+        <div id="taskCard" class="task-card {% if solved %}solved{% endif %}" data-solved="{{ 'true' if solved else 'false' }}">
             <div class="task-info">
                 <h2>Анонимный спортсмен</h2>
                 <p id="statusText">
@@ -486,7 +486,7 @@
             body: `flag=${encodeURIComponent(flag)}`
         })
         .then(r => r.json())
-        .then data => {
+        .then((data) => {
             if (data.success) {
                 const card = document.getElementById('taskCard');
                 card.classList.add('solved');

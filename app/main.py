@@ -12,7 +12,7 @@ POSTGRES_PASSWORD = DB_CONFIG['password']
 POSTGRES_DB = DB_CONFIG['database']
 POSTGRES_HOST = DB_CONFIG['host']
 
-app = Flask(__name__, template_folder='front_end-demo')
+app = Flask(__name__, template_folder='templates')
 app.config['SECRET_KEY'] = os.urandom(24)
 app.config['SQLALCHEMY_DATABASE_URI'] = f'postgresql://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_HOST}:5432/{POSTGRES_DB}'
 db = SQLAlchemy()
