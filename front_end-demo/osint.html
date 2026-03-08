@@ -423,6 +423,7 @@
         <div class="nav-links">
             <a href="{{ url_for('about') }}">О НАС</a>
             <a href="{{ url_for('category') }}">КАТЕГОРИИ</a>
+            <a href="{{ url_for('leaderboard') }}">РЕЙТИНГ</a>
             {% if session.get('user_id') %}
                 <a href="{{ url_for('logout') }}" class="logout-btn" onclick="return confirm('Выйти?');">ВЫХОД</a>
             {% endif %}

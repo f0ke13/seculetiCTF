@@ -3,9 +3,11 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.exc import IntegrityError
 from config import DB_CONFIG
 from functools import wraps
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 import bcrypt
 import os
+
+MSK = timezone(timedelta(hours=3))
 
 POSTGRES_USER = DB_CONFIG['user']
 POSTGRES_PASSWORD = DB_CONFIG['password']
@@ -134,11 +136,62 @@ def submit_flag():
                 solve = Solve(user_id=session['user_id'], task_id=task.id)
                 db.session.add(solve)
                 db.session.commit()
-                return jsonify({"success": True, "message": "Correct flag! Задание решено."})
+                return jsonify({
+                    "success": True,
+                    "message": f"Correct flag! +{task.points} баллов.",
+                    "points": task.points,
+                    "task": task.title,
+                })
             else:
                 return jsonify({"success": False, "message": "Уже решено"})
 
     return jsonify({"success": False, "message": "Неверный флаг"})
+
+
+@app.route('/leaderboard')
+def leaderboard():
+    return render_template('leaderboard.html')
+
+
+@app.route('/api/leaderboard')
+def api_leaderboard():
+    """JSON-эндпоинт: рейтинг игроков по сумме баллов за решённые задания."""
+    total_tasks = Task.query.count()
+
+    rows = (
+        db.session.query(
+            User.username,
+            db.func.coalesce(db.func.sum(Task.points), 0).label('score'),
+            db.func.count(Solve.id).label('solved'),
+            db.func.max(Solve.solved_at).label('last_solve'),
+        )
+        .join(Solve, Solve.user_id == User.id)
+        .join(Task, Task.id == Solve.task_id)
+        .group_by(User.id, User.username)
+        .order_by(db.desc('score'), db.asc('last_solve'))
+        .all()
+    )
+
+    players = []
+    for r in rows:
+        last_msk = '-'
+        if r.last_solve:
+            # stored as naive UTC → attach UTC, convert to MSK
+            utc_dt = r.last_solve.replace(tzinfo=timezone.utc)
+            last_msk = utc_dt.astimezone(MSK).strftime('%H:%M')
+        players.append({
+            'username': r.username,
+            'score': int(r.score),
+            'solved': int(r.solved),
+            'last_solve': last_msk,
+        })
+
+    now_msk = datetime.now(MSK)
+    return jsonify({
+        'players': players,
+        'total_tasks': total_tasks,
+        'server_time': now_msk.strftime('%d %b %Y %H:%M:%S MSK'),
+    })
 
 
 @app.route('/logout')
@@ -176,74 +229,73 @@ def beginner():
                            task3_solved=task3_solved)
 
 
+def _ensure_task(title, description, flag_bytes, points, category_id):
+    """Создаёт задание если нет, иначе — обновляет points."""
+    task = Task.query.filter_by(title=title).first()
+    if task:
+        if task.points != points:
+            task.points = points
+            db.session.commit()
+        return task
+    hashed = bcrypt.hashpw(flag_bytes, bcrypt.gensalt()).decode('utf-8')
+    task = Task(
+        title=title,
+        description=description,
+        flag_hash=hashed,
+        points=points,
+        category_id=category_id,
+    )
+    db.session.add(task)
+    db.session.commit()
+    return task
+
+
 def seed():
-    # OSINT категория + задание "Анонимный спортсмен"
-    if not Category.query.filter_by(name="OSINT").first():
+    # OSINT категория
+    osint_cat = Category.query.filter_by(name="OSINT").first()
+    if not osint_cat:
         osint_cat = Category(name="OSINT")
         db.session.add(osint_cat)
         db.session.commit()
 
-        flag_bytes = b"seculeti{Pr0f1t}"
-        hashed = bcrypt.hashpw(flag_bytes, bcrypt.gensalt()).decode('utf-8')
+    _ensure_task(
+        title="Анонимный спортсмен",
+        description="Привет, я слышал, что ты можешь вычислить человека по IP...",
+        flag_bytes=b"seculeti{Pr0f1t}",
+        points=1000,
+        category_id=osint_cat.id,
+    )
 
-        task = Task(
-            title="Анонимный спортсмен",
-            description="Привет, я слышал, что ты можешь вычислить человека по IP...",
-            flag_hash=hashed,
-            points=1000,
-            category_id=osint_cat.id
-        )
-        db.session.add(task)
-        db.session.commit()
-
-    # Beginner категория + 3 задания
+    # Beginner категория
     beginner_cat = Category.query.filter_by(name="Beginner").first()
     if not beginner_cat:
         beginner_cat = Category(name="Beginner")
         db.session.add(beginner_cat)
         db.session.commit()
 
-    # Задание 1: Без комментариев
-    if not Task.query.filter_by(title="Без комментариев").first():
-        flag1 = b"seculeti{Plz_D0nt_C0mm3nt_th1$}"
-        hash1 = bcrypt.hashpw(flag1, bcrypt.gensalt()).decode('utf-8')
-        task1 = Task(
-            title="Без комментариев",
-            description="Все с чего-то начинают, даже если у тебя нет инструментов для этого.",
-            flag_hash=hash1,
-            points=15,
-            category_id=beginner_cat.id
-        )
-        db.session.add(task1)
-        db.session.commit()
+    _ensure_task(
+        title="Без комментариев",
+        description="Все с чего-то начинают, даже если у тебя нет инструментов для этого.",
+        flag_bytes=b"seculeti{Plz_D0nt_C0mm3nt_th1$}",
+        points=15,
+        category_id=beginner_cat.id,
+    )
 
-    # Задание 2: Little Osinter
-    if not Task.query.filter_by(title="Little Osinter").first():
-        flag2 = b"seculeti{3350971088}"
-        hash2 = bcrypt.hashpw(flag2, bcrypt.gensalt()).decode('utf-8')
-        task2 = Task(
-            title="Little Osinter",
-            description="Команда seculeti уже десятый раз меняет название своей группы...",
-            flag_hash=hash2,
-            points=25,
-            category_id=beginner_cat.id
-        )
-        db.session.add(task2)
-        db.session.commit()
+    _ensure_task(
+        title="Little Osinter",
+        description="Команда seculeti уже десятый раз меняет название своей группы...",
+        flag_bytes=b"seculeti{3350971088}",
+        points=25,
+        category_id=beginner_cat.id,
+    )
 
-    # Задание 3: Крипто-ключ
-    if not Task.query.filter_by(title="Крипто-ключ").first():
-        flag3 = b"seculeti{Th4t$T0oCl1ch3N0tEv3rCrypt0}"
-        hash3 = bcrypt.hashpw(flag3, bcrypt.gensalt()).decode('utf-8')
-        task3 = Task(
-            title="Крипто-ключ",
-            description="Сколько раз говорить ему не оставлять пароли на столе..",
-            flag_hash=hash3,
-            points=15,
-            category_id=beginner_cat.id
-        )
-        db.session.add(task3)
-        db.session.commit()
+    _ensure_task(
+        title="Крипто-ключ",
+        description="Сколько раз говорить ему не оставлять пароли на столе..",
+        flag_bytes=b"seculeti{Th4t$T0oCl1ch3N0tEv3rCrypt0}",
+        points=15,
+        category_id=beginner_cat.id,
+    )
 
 
 def migrate_db():

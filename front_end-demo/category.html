@@ -535,6 +535,7 @@ nav .logout-btn:hover {
         <div class="nav-links">
             <a href="{{ url_for('about') }}" data-text="О НАС">О НАС</a>
             <a href="{{ url_for('category') }}" data-text="КАТЕГОРИИ">КАТЕГОРИИ</a>
+            <a href="{{ url_for('leaderboard') }}" data-text="РЕЙТИНГ">РЕЙТИНГ</a>
             {% if session.get('user_id') %}
                 <a href="#" class="logout-btn" data-text="ВЫХОД" onclick="if(confirm('Выйти?')) window.location.href='{{ url_for('logout') }}'; return false;">ВЫХОД</a>
             {% endif %}
