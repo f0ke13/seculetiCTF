@@ -2,3 +2,6 @@ flask
 flask_sqlalchemy
 psycopg2-binary
 bcrypt
+pytest
+pytest-cov
+pytest-spec

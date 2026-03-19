@@ -13,7 +13,12 @@ POSTGRES_HOST = DB_CONFIG['host']
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.urandom(24)
-app.config['SQLALCHEMY_DATABASE_URI'] = f'postgresql://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_HOST}:5432/{POSTGRES_DB}'
+
+# ↓ вот это место — вместо старой строки с SQLALCHEMY_DATABASE_URI
+db_uri = os.environ.get('SQLALCHEMY_DATABASE_URI') or \
+    f'postgresql://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_HOST}:5432/{POSTGRES_DB}'
+app.config['SQLALCHEMY_DATABASE_URI'] = db_uri
+
 db = SQLAlchemy()
 db.init_app(app)
 
@@ -73,7 +78,6 @@ def login_required(f):
         if 'user_id' not in session:
             return redirect(url_for('login'))
         return f(*args, **kwargs)
-
     return decorated_function
 
 
@@ -87,4 +91,3 @@ if __name__ == "__main__":
     with app.app_context():
         db.create_all()
     app.run(host="0.0.0.0", port=5000)
-
