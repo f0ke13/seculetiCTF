@@ -1,0 +1,41 @@
+# seculeti_ctf/docker-compose.test.yml
+version: "3.9"
+
+services:
+  db_test:
+    image: postgres:15
+    container_name: etuctf_test_db
+    environment:
+      POSTGRES_DB: etuctf_test
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 11111111
+    ports:
+      - "5433:5432"   # отдельный порт, чтобы не конфликтовать с основной БД
+    volumes:
+      - postgres_test_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d etuctf_test"]
+      interval: 3s
+      timeout: 3s
+      retries: 5
+
+  web_test:
+    build:
+      context: ..
+      dockerfile: seculeti_ctf/Dockerfile
+    container_name: etuctf_test_app
+    depends_on:
+      db_test:
+        condition: service_healthy
+    environment:
+      FLASK_ENV: testing
+      DATABASE_URL: postgresql://postgres:11111111@db_test:5432/etuctf_test
+      TESTING: "true"
+    ports:
+      - "5001:5000"   # отдельный порт для тестов
+    volumes:
+      - ../seculeti_ctf:/app/seculeti_ctf
+      - ../front_end-demo:/app/front_end-demo
+
+volumes:
+  postgres_test_data:
