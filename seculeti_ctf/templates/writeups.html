@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SECULETI — Райтапы</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { height: 100%; }
+
+body {
+    font-family: 'Space Grotesk', sans-serif;
+    min-height: 100vh;
+    background: #0a0a0a;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+.main-content {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 40px 20px;
+    overflow: auto;
+}
+
+body::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image:
+        linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    animation: moveGrid 25s linear infinite;
+    pointer-events: none;
+}
+
+@keyframes moveGrid {
+    from { background-position: 0 0; }
+    to { background-position: -40px -40px; }
+}
+
+body::after {
+    content: "";
+    position: fixed;
+    width: 800px;
+    height: 800px;
+    background: radial-gradient(circle, rgba(255,255,255,0.06) 0%, transparent 70%);
+    filter: blur(100px);
+    animation: pulse 7s ease-in-out infinite alternate;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+}
+
+@keyframes pulse {
+    from { transform: translate(-50%, -50%) scale(1); }
+    to   { transform: translate(-50%, -50%) scale(1.18); }
+}
+
+nav {
+    position: relative;
+    z-index: 1000;
+    background: transparent;
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    padding: 15px 0;
+    overflow: hidden;
+}
+
+nav::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background:
+        repeating-linear-gradient(
+            0deg,
+            transparent,
+            transparent 1px,
+            rgba(255,255,255,0.03) 1px,
+            rgba(255,255,255,0.03) 2px
+        );
+    pointer-events: none;
+    animation: scanMove 4s linear infinite;
+}
+
+@keyframes scanMove {
+    0% { background-position: 0 0; }
+    100% { background-position: 0 4px; }
+}
+
+.nav-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+    display: flex;
+    align-items: center;
+    gap: 40px;
+    position: relative;
+    z-index: 1;
+}
+
+.logo {
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: 4px;
+    color: white;
+    text-decoration: none;
+    text-transform: uppercase;
+}
+
+.nav-links {
+    display: flex;
+    gap: 30px;
+    align-items: center;
+    margin-left: auto;
+}
+
+.nav-links a {
+    color: rgba(255,255,255,0.7);
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    transition: all 0.2s ease;
+}
+
+.nav-links a:hover { color: white; }
+
+.logout-btn {
+    background: rgba(255,255,255,0.08);
+    padding: 8px 20px;
+    border-radius: 8px;
+    border: 1px solid rgba(255,255,255,0.2);
+    color: white;
+    text-decoration: none;
+}
+
+.container {
+    position: relative;
+    width: 90%;
+    max-width: 980px;
+    padding: 50px 40px;
+    background: rgba(20,20,20,0.78);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255,255,255,0.09);
+    border-radius: 20px;
+    box-shadow: 0 0 60px rgba(255,255,255,0.04);
+    z-index: 2;
+}
+
+h1, h2 {
+    font-family: 'Courier New', Courier, monospace;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    margin-bottom: 20px;
+}
+
+.panel {
+    padding: 24px;
+    margin-bottom: 28px;
+    background: rgba(15,15,15,0.95);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 12px;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 13px;
+    opacity: 0.8;
+}
+
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 10px 12px;
+    background: #111;
+    color: white;
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 7px;
+    font-family: inherit;
+}
+
+.btn {
+    padding: 10px 22px;
+    background: white;
+    color: black;
+    border: none;
+    font-weight: 600;
+    cursor: pointer;
+    border-radius: 7px;
+    letter-spacing: 1px;
+}
+
+.writeup-list {
+    display: grid;
+    gap: 16px;
+}
+
+.writeup-card {
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 16px 18px;
+    border-radius: 12px;
+    background: rgba(15,15,15,0.92);
+}
+
+.writeup-author { opacity: 0.7; font-size: 13px; margin: 6px 0; }
+.writeup-content { line-height: 1.5; white-space: pre-wrap; }
+.writeup-date { opacity: 0.6; font-size: 12px; margin-top: 8px; }
+
+.flash { padding: 12px 14px; margin-bottom: 16px; border-radius: 8px; font-size: 14px; }
+.flash.success { background: rgba(0, 255, 0, 0.1); border: 1px solid #0f0; }
+.flash.error { background: rgba(255, 0, 0, 0.1); border: 1px solid #f44; }
+</style>
+</head>
+<body>
+
+<nav>
+    <div class="nav-container">
+        <a href="{{ url_for('category') }}" class="logo">SECULETI</a>
+        <div class="nav-links">
+            <a href="{{ url_for('category') }}">КАТЕГОРИИ</a>
+            <a href="{{ url_for('leaderboard') }}">РЕЙТИНГ</a>
+            <a href="{{ url_for('suggest') }}">ПРЕДЛОЖЕНИЯ</a>
+            <a href="{{ url_for('writeups') }}">РАЙТАПЫ</a>
+            <a href="{{ url_for('logout') }}" class="logout-btn">ВЫХОД</a>
+        </div>
+    </div>
+</nav>
+
+<div class="main-content">
+    <div class="container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              <div class="flash {{ category }}">{{ message }}</div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+
+        <h1>Райтапы</h1>
+
+        <div class="panel">
+            <h2>Добавить новый райтап</h2>
+            <form method="POST" action="{{ url_for('writeups_submit') }}">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Задача</label>
+                        <select name="task_id" required>
+                            <option value="">Выберите задачу</option>
+                            {% for t in tasks %}
+                            <option value="{{ t.id }}" {% if current_task_id and t.id == current_task_id %}selected{% endif %}>{{ t.title }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group" style="grid-column: 1 / -1;">
+                        <label>Ваше объяснение (Markdown поддерживается)</label>
+                        <textarea name="content" required rows="6"></textarea>
+                    </div>
+                </div>
+                <button type="submit" class="btn" style="margin-top: 12px;">Опубликовать райтап</button>
+            </form>
+        </div>
+
+        <h2>Все опубликованные райтапы</h2>
+        {% if writeups %}
+            <div class="writeup-list">
+                {% for w, username, task_title in writeups %}
+                <div class="writeup-card">
+                    <h4>{{ task_title }}</h4>
+                    <div class="writeup-author">Автор: <strong>{{ username }}</strong></div>
+                    <div class="writeup-content">{{ w.content }}</div>
+                    <div class="writeup-date">Опубликовано: {{ w.created_at.strftime('%d.%m.%Y %H:%M') }}</div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p>Райтапов пока нет.</p>
+        {% endif %}
+    </div>
+</div>
+
+</body>
+</html>

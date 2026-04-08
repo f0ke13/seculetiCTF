@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SECULETI CTF Login</title>
+
+<!-- Google Font -->
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    height: 100%;
+    overflow: hidden;
+}
+
+body {
+    font-family: 'Space Grotesk', sans-serif;
+    min-height: 100vh;
+    background: #0a0a0a;
+    color: white;
+    display: flex;
+    flex-direction: column;
+}
+
+.main-content {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}
+
+/* Animated grid background */
+body::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: 
+        linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    animation: moveGrid 25s linear infinite;
+    pointer-events: none;
+}
+
+@keyframes moveGrid {
+    from { background-position: 0 0; }
+    to { background-position: -40px -40px; }
+}
+
+/* Soft radial glow - monochrome */
+body::after {
+    content: "";
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%);
+    filter: blur(80px);
+    animation: pulse 6s ease-in-out infinite alternate;
+    pointer-events: none;
+}
+
+@keyframes pulse {
+    from { transform: translate(-50%, -50%) scale(1); }
+    to { transform: translate(-50%, -50%) scale(1.2); }
+}
+
+.container {
+    position: relative;
+    width: 360px;
+    padding: 40px;
+    background: rgba(20,20,20,0.7);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 16px;
+    box-shadow: 0 0 40px rgba(255,255,255,0.05);
+    z-index: 2;
+}
+
+.title {
+    text-align: center;
+    font-size: 32px;
+    font-weight: 700;
+    letter-spacing: 4px;
+    margin-bottom: 30px;
+}
+
+.title span {
+    opacity: 0.7;
+}
+
+.input-group {
+    margin-bottom: 20px;
+}
+
+input {
+    width: 100%;
+    padding: 14px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 10px;
+    color: white;
+    font-size: 14px;
+    transition: 0.3s;
+}
+
+input:focus {
+    outline: none;
+    border-color: white;
+    background: rgba(255,255,255,0.08);
+    box-shadow: 0 0 10px rgba(255,255,255,0.2);
+}
+
+button {
+    width: 100%;
+    padding: 14px;
+    background: white;
+    color: black;
+    border: none;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.3s;
+    letter-spacing: 1px;
+}
+
+button:hover {
+    background: #e6e6e6;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(255,255,255,0.2);
+}
+
+.footer {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 13px;
+    opacity: 0.6;
+}
+
+.footer a {
+    color: white;
+    text-decoration: none;
+    border-bottom: 1px solid rgba(255,255,255,0.3);
+    transition: 0.3s;
+}
+
+.footer a:hover {
+    opacity: 1;
+    border-bottom: 1px solid white;
+}
+
+/* Navigation Menu - DeadSec VHS стиль */
+nav {
+    position: relative;
+    z-index: 1000;
+    background: transparent;
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    padding: 15px 0;
+    overflow: hidden;
+}
+
+/* VHS scanlines на всю шапку */
+nav::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: 
+        repeating-linear-gradient(
+            0deg,
+            transparent,
+            transparent 1px,
+            rgba(255,255,255,0.03) 1px,
+            rgba(255,255,255,0.03) 2px
+        );
+    pointer-events: none;
+    animation: scanMove 4s linear infinite;
+}
+
+/* VHS glitch overlay на всю шапку */
+nav::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: 
+        linear-gradient(90deg, 
+            transparent 0%, 
+            rgba(255,255,255,0.03) 15%,
+            transparent 30%,
+            rgba(255,255,255,0.02) 50%,
+            transparent 70%,
+            rgba(255,255,255,0.03) 85%,
+            transparent 100%
+        );
+    background-size: 300% 100%;
+    animation: vhsFlicker 0.5s infinite, vhsShift 6s ease-in-out infinite;
+    pointer-events: none;
+}
+
+@keyframes scanMove {
+    0% { background-position: 0 0; }
+    100% { background-position: 0 4px; }
+}
+
+@keyframes vhsFlicker {
+    0%, 100% { opacity: 0.7; }
+    25% { opacity: 1; }
+    50% { opacity: 0.8; }
+    75% { opacity: 0.95; }
+}
+
+@keyframes vhsShift {
+    0%, 100% { background-position: 300% 0; }
+    50% { background-position: -300% 0; }
+}
+
+@keyframes navGlitch {
+    0%, 95%, 100% { transform: translate(0); }
+    96% { transform: translate(-2px, 0); }
+    97% { transform: translate(2px, 0); }
+    98% { transform: translate(-1px, 0); }
+    99% { transform: translate(1px, 0); }
+}
+
+@keyframes navDistort {
+    0%, 90%, 100% { clip-path: inset(0); }
+    91% { clip-path: inset(10% 0 80% 0); }
+    92% { clip-path: inset(40% 0 40% 0); }
+    93% { clip-path: inset(80% 0 10% 0); }
+    94% { clip-path: inset(0); }
+}
+
+/* DeadSec glitch effect on logo */
+nav .logo {
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: 4px;
+    color: white;
+    text-decoration: none;
+    position: relative;
+    display: inline-block;
+    text-transform: uppercase;
+    animation: logoGlitch 8s infinite;
+}
+
+nav .logo::before,
+nav .logo::after {
+    content: 'SECULETI';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+}
+
+nav .logo::before {
+    color: rgba(255,255,255,0.8);
+    animation: deadsecGlitch1 6s infinite;
+}
+
+nav .logo::after {
+    color: rgba(255,255,255,0.5);
+    animation: deadsecGlitch2 5s infinite;
+}
+
+@keyframes logoGlitch {
+    0%, 95%, 100% { filter: none; }
+    96% { filter: blur(0.2px); }
+    97% { filter: none; }
+    98% { filter: blur(0.1px); }
+    99% { filter: none; }
+}
+
+@keyframes deadsecGlitch1 {
+    0%, 95%, 100% { opacity: 0; transform: translate(0); }
+    96% { opacity: 0.4; transform: translate(-1px, 0.5px); }
+    97% { opacity: 0.3; transform: translate(1px, -0.5px); }
+    98% { opacity: 0.2; transform: translate(-0.5px, 0.5px); }
+    99% { opacity: 0.1; transform: translate(0.5px, -0.5px); }
+}
+
+@keyframes deadsecGlitch2 {
+    0%, 95%, 100% { opacity: 0; transform: translate(0); }
+    96% { opacity: 0.3; transform: translate(1px, 1px); }
+    97% { opacity: 0.2; transform: translate(-1px, -0.5px); }
+    98% { opacity: 0.1; transform: translate(0.5px, -1px); }
+    99% { opacity: 0.05; transform: translate(-0.5px, 1px); }
+}
+
+nav .nav-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+    z-index: 1;
+}
+
+nav .nav-links {
+    display: flex;
+    gap: 30px;
+    align-items: center;
+}
+
+nav .nav-links a {
+    color: rgba(255,255,255,0.7);
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    position: relative;
+    padding: 5px 0;
+}
+
+/* VHS-стиль hover эффект для ссылок */
+nav .nav-links a::before {
+    content: attr(data-text);
+    position: absolute;
+    top: 5px;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    color: rgba(255,255,255,0.3);
+    opacity: 0;
+    transform: translate(0);
+    transition: all 0.1s ease;
+}
+
+nav .nav-links a::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: white;
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.3s ease;
+    box-shadow: 0 0 8px rgba(255,255,255,0.6), 0 0 2px white;
+}
+
+nav .nav-links a:hover {
+    color: white;
+    text-shadow:
+        0 0 10px rgba(255,255,255,0.8),
+        2px 0 0 rgba(255,255,255,0.2),
+        -2px 0 0 rgba(255,255,255,0.2);
+    animation: linkGlitch 0.5s ease-in-out;
+}
+
+nav .nav-links a:hover::before {
+    opacity: 1;
+    animation: linkGhostGlitch 0.6s infinite ease-in-out;
+}
+
+@keyframes linkGlitch {
+    0% { transform: translate(0); }
+    20% { transform: translate(-1px, 0.5px); }
+    40% { transform: translate(1px, -0.5px); }
+    60% { transform: translate(-0.5px, -0.5px); }
+    80% { transform: translate(0.5px, 0.5px); }
+    100% { transform: translate(0); }
+}
+
+@keyframes linkGhostGlitch {
+    0%, 100% { transform: translate(0); opacity: 0.3; }
+    25% { transform: translate(-1px, 0.5px); opacity: 0.5; }
+    50% { transform: translate(1px, -0.5px); opacity: 0.2; }
+    75% { transform: translate(-0.5px, 1px); opacity: 0.4; }
+}
+</style>
+</head>
+
+<body>
+
+<nav>
+    <div class="nav-container">
+        <a href="{{ url_for('login') }}" class="logo">SECULETI</a>
+        <div class="nav-links">
+            <a href="{{ url_for('about') }}" data-text="О НАС">О НАС</a>
+            <a href="{{ url_for('leaderboard') }}" data-text="РЕЙТИНГ">РЕЙТИНГ</a>
+            <a href="{{ url_for('login') }}" data-text="ВХОД">ВХОД</a>
+            <a href="{{ url_for('register') }}" data-text="РЕГИСТРАЦИЯ">РЕГИСТРАЦИЯ</a>
+        </div>
+    </div>
+</nav>
+
+<div class="main-content">
+<div class="container">
+    <div class="title">SECULETI <span>CTF</span></div>
+
+    <form id="loginForm" action="{{ url_for('login') }}" method="POST">
+        <div class="input-group">
+            <input type="text" name="username" placeholder="Username" required>
+        </div>
+
+        <div class="input-group">
+            <input type="password" name="password" placeholder="Password" required>
+        </div>
+
+        <button type="submit">LOGIN</button>
+    </form>
+
+    <div class="footer">
+        No account? <a href="{{ url_for('register') }}">Register</a>
+    </div>
+</div>
+</div>
+
+</body>
+</html>

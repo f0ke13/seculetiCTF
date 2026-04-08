@@ -1,0 +1,17 @@
+version: "3.9"
+
+services:
+  web:
+    build:
+      context: ..
+      dockerfile: seculeti_ctf/Dockerfile
+    ports:
+      - "5000:5000"
+    environment:
+      FLASK_ENV: development
+      FLASK_DEBUG: 1
+    volumes:
+      - ../seculeti_ctf:/app/seculeti_ctf
+      - ../front_end-demo:/app/front_end-demo
+      - ../seculeti_ctf/templates:/app/seculeti_ctf/templates
+      - ../seculeti_ctf/static:/app/seculeti_ctf/static
