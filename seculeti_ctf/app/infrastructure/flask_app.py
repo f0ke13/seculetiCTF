@@ -33,6 +33,10 @@ def create_app() -> Flask:
 
     container = build_container()
 
+    @app.teardown_appcontext
+    def remove_session(exception=None):
+        container.db.session.remove()
+
     register_auth_routes(app, container.login_uc, container.register_uc)
     register_task_routes(
         app,

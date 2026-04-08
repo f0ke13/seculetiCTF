@@ -1,17 +1,42 @@
 version: "3.9"
 
 services:
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: etuctf
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 11111111
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
   web:
     build:
       context: ..
       dockerfile: seculeti_ctf/Dockerfile
+    depends_on:
+      db:
+        condition: service_healthy
     ports:
       - "5000:5000"
     environment:
       FLASK_ENV: development
       FLASK_DEBUG: 1
+      DB_HOST: db
+      DB_NAME: etuctf
+      DB_USER: postgres
+      DB_PASSWORD: 11111111
+      DB_PORT: 5432
     volumes:
       - ../seculeti_ctf:/app/seculeti_ctf
       - ../front_end-demo:/app/front_end-demo
       - ../seculeti_ctf/templates:/app/seculeti_ctf/templates
       - ../seculeti_ctf/static:/app/seculeti_ctf/static
+
+volumes:
+  postgres_data:

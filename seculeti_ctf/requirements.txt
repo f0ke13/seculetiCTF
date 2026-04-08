@@ -1,2 +1,4 @@
 flask
 bcrypt
+SQLAlchemy
+psycopg2-binary

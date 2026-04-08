@@ -4,15 +4,16 @@ from dataclasses import dataclass
 
 import bcrypt
 
-from ..adapters.repositories.in_memory import (
-    InMemoryCategoryRepository,
-    InMemoryProposalRepository,
-    InMemorySolveRepository,
-    InMemoryTaskRepository,
-    InMemoryUserRepository,
-    InMemoryWriteupRepository,
+from ..adapters.repositories.sqlalchemy import (
+    SqlAlchemyCategoryRepository,
+    SqlAlchemyProposalRepository,
+    SqlAlchemySolveRepository,
+    SqlAlchemyTaskRepository,
+    SqlAlchemyUserRepository,
+    SqlAlchemyWriteupRepository,
 )
 from ..domain.entities import Category, Task, User
+from ..domain.repositories import CategoryRepository, TaskRepository, UserRepository
 from ..usecases.admin import (
     AdminAddTaskUseCase,
     AdminApproveProposalUseCase,
@@ -29,18 +30,19 @@ from ..usecases.submissions import ForfeitTaskUseCase, SubmitFlagUseCase
 from ..usecases.suggestions import ListSuggestionsUseCase, SubmitSuggestionUseCase
 from ..usecases.tasks import CategoryOverviewUseCase, CategoryTasksUseCase, TaskDetailUseCase, TasksByTitleUseCase
 from ..usecases.writeups import ListWriteupsUseCase, SubmitWriteupUseCase
-from .db import InMemoryDB, create_db
+from .config import Config
+from .db import Database, build_db, init_db
 
 
 @dataclass
 class Container:
-    db: InMemoryDB
-    users: InMemoryUserRepository
-    categories: InMemoryCategoryRepository
-    tasks: InMemoryTaskRepository
-    solves: InMemorySolveRepository
-    proposals: InMemoryProposalRepository
-    writeups: InMemoryWriteupRepository
+    db: Database
+    users: SqlAlchemyUserRepository
+    categories: SqlAlchemyCategoryRepository
+    tasks: SqlAlchemyTaskRepository
+    solves: SqlAlchemySolveRepository
+    proposals: SqlAlchemyProposalRepository
+    writeups: SqlAlchemyWriteupRepository
     login_uc: LoginUserUseCase
     register_uc: RegisterUserUseCase
     category_uc: CategoryOverviewUseCase
@@ -65,13 +67,14 @@ class Container:
 
 
 def build_container() -> Container:
-    db = create_db()
-    users = InMemoryUserRepository(db)
-    categories = InMemoryCategoryRepository(db)
-    tasks = InMemoryTaskRepository(db)
-    solves = InMemorySolveRepository(db)
-    proposals = InMemoryProposalRepository(db)
-    writeups = InMemoryWriteupRepository(db)
+    db = build_db(Config.db_url())
+    init_db(db)
+    users = SqlAlchemyUserRepository(db.session)
+    categories = SqlAlchemyCategoryRepository(db.session)
+    tasks = SqlAlchemyTaskRepository(db.session)
+    solves = SqlAlchemySolveRepository(db.session)
+    proposals = SqlAlchemyProposalRepository(db.session)
+    writeups = SqlAlchemyWriteupRepository(db.session)
 
     _seed(users, categories, tasks)
 
@@ -107,7 +110,7 @@ def build_container() -> Container:
     )
 
 
-def _seed(users: InMemoryUserRepository, categories: InMemoryCategoryRepository, tasks: InMemoryTaskRepository) -> None:
+def _seed(users: UserRepository, categories: CategoryRepository, tasks: TaskRepository) -> None:
     if not users.get_by_username("admin"):
         hashed = bcrypt.hashpw(b"admin123", bcrypt.gensalt()).decode("utf-8")
         users.add(User(id=0, username="admin", password_hash=hashed, role="admin"))
@@ -158,7 +161,7 @@ def _seed(users: InMemoryUserRepository, categories: InMemoryCategoryRepository,
 
 
 def _ensure_task(
-    tasks: InMemoryTaskRepository,
+    tasks: TaskRepository,
     title: str,
     description: str,
     flag_bytes: bytes,
