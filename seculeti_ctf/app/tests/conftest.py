@@ -1,107 +1,146 @@
+# seculeti_ctf/app/tests/conftest.py
+
 import sys
 from pathlib import Path
 
 # Добавляем путь к проекту
-root = Path(__file__).resolve().parent.parent.parent  # папка seculeti_ctf
+root = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(root))
 
 import pytest
-from sqlalchemy import create_engine, text
-from sqlalchemy.orm import sessionmaker, scoped_session
-
-# Импортируем нужные модели и функции из проекта
-from app.infrastructure.db import Base, build_db, init_db, Database
-from app.infrastructure.config import Config
-from app.infrastructure.di import build_container
-from app.infrastructure.flask_app import create_app
-
-TEST_DATABASE_URI = "postgresql://postgres:11111111@localhost:5432/etuctf_test"
-
-
-@pytest.fixture(scope="session")
-def test_db_engine():
-    engine = create_engine(TEST_DATABASE_URI, echo=False)
-    yield engine
-    engine.dispose()
+from app.infrastructure.db import create_db, InMemoryDB
+from app.adapters.repositories.in_memory import (
+    InMemoryUserRepository,
+    InMemoryCategoryRepository,
+    InMemoryTaskRepository,
+    InMemorySolveRepository,
+    InMemoryProposalRepository,
+    InMemoryWriteupRepository,
+)
+from app.domain.entities import User, Category, Task, Solve
+from app.usecases.leaderboard import LeaderboardUseCase
+import bcrypt
+from datetime import datetime
 
 
-@pytest.fixture(scope="session", autouse=True)
-def setup_test_database(test_db_engine):
-    # Создаем схему public заново
-    with test_db_engine.connect() as conn:
-        conn.execute(text("DROP SCHEMA IF EXISTS public CASCADE;"))
-        conn.execute(text("CREATE SCHEMA public;"))
-        conn.commit()
+@pytest.fixture
+def in_memory_db():
+    """Создает in-memory базу данных"""
+    return create_db()
+
+
+@pytest.fixture
+def user_repo(in_memory_db):
+    """Репозиторий пользователей"""
+    return InMemoryUserRepository(in_memory_db)
+
+
+@pytest.fixture
+def category_repo(in_memory_db):
+    """Репозиторий категорий"""
+    return InMemoryCategoryRepository(in_memory_db)
+
+
+@pytest.fixture
+def task_repo(in_memory_db):
+    """Репозиторий задач"""
+    return InMemoryTaskRepository(in_memory_db)
+
+
+@pytest.fixture
+def solve_repo(in_memory_db):
+    """Репозиторий решений"""
+    return InMemorySolveRepository(in_memory_db)
+
+
+@pytest.fixture
+def test_user(user_repo):
+    """Создает тестового пользователя"""
+    hashed = bcrypt.hashpw(b"test123", bcrypt.gensalt()).decode("utf-8")
+    user = User(id=0, username="testuser", password_hash=hashed, role="user")
+    return user_repo.add(user)
+
+
+@pytest.fixture
+def test_category(category_repo):
+    """Создает тестовую категорию"""
+    category = Category(id=0, name="Test Category")
+    return category_repo.add(category)
+
+
+@pytest.fixture
+def test_task(task_repo, test_category):
+    """Создает тестовую задачу"""
+    flag_hash = bcrypt.hashpw(b"testflag{test}", bcrypt.gensalt()).decode("utf-8")
+    task = Task(
+        id=0,
+        title="Test Task",
+        description="Test description",
+        flag_hash=flag_hash,
+        points=100,
+        category_id=test_category.id
+    )
+    return task_repo.add(task)
+
+
+@pytest.fixture
+def test_solve(solve_repo, test_user, test_task):
+    """Создает тестовое решение"""
+    solve = Solve(
+        id=0,
+        user_id=test_user.id,
+        task_id=test_task.id,
+        solved_at=datetime.now(),
+        points_awarded=100,
+        is_forfeit=False
+    )
+    return solve_repo.add(solve)
+
+
+@pytest.fixture
+def leaderboard_use_case(user_repo, task_repo, solve_repo):
+    """Use case для лидерборда"""
+    return LeaderboardUseCase(user_repo, task_repo, solve_repo)
+
+
+@pytest.fixture
+def flask_test_client():
+    """Создает тестовый клиент Flask с in-memory репозиториями"""
+    from app.infrastructure.flask_app import create_app
+    from app.infrastructure.di import build_container
+    from app.adapters.repositories.in_memory import (
+        InMemoryUserRepository,
+        InMemoryCategoryRepository,
+        InMemoryTaskRepository,
+        InMemorySolveRepository,
+        InMemoryProposalRepository,
+        InMemoryWriteupRepository,
+    )
+    from app.infrastructure.db import create_db
     
-    # Создаем все таблицы
-    Base.metadata.create_all(test_db_engine)
-    yield
-    Base.metadata.drop_all(test_db_engine)
-
-
-@pytest.fixture(scope="function")
-def db_session(test_db_engine):
-    connection = test_db_engine.connect()
-    transaction = connection.begin()
-    Session = scoped_session(sessionmaker(bind=connection))
-    session = Session()
-
-    yield session
-
-    session.close()
-    transaction.rollback()
-    connection.close()
-
-
-@pytest.fixture(scope="function")
-def test_client(db_session):
     app = create_app()
     app.config['TESTING'] = True
-    app.config['SQLALCHEMY_DATABASE_URI'] = TEST_DATABASE_URI
     
-    # Создаем контейнер с тестовой сессией
-    container = build_container()
+    # Создаем in-memory БД и репозитории
+    db = create_db()
+    app.container = type('Container', (), {})()
+    app.container.users = InMemoryUserRepository(db)
+    app.container.categories = InMemoryCategoryRepository(db)
+    app.container.tasks = InMemoryTaskRepository(db)
+    app.container.solves = InMemorySolveRepository(db)
+    app.container.proposals = InMemoryProposalRepository(db)
+    app.container.writeups = InMemoryWriteupRepository(db)
     
-    # Подменяем сессию в репозиториях на тестовую
-    # (это зависит от реализации, упрощенный вариант)
+    # Добавляем тестовые данные
+    hashed = bcrypt.hashpw(b"admin123", bcrypt.gensalt()).decode("utf-8")
+    admin = User(id=0, username="admin", password_hash=hashed, role="admin")
+    app.container.users.add(admin)
     
-    with app.app_context():
-        # Инициализируем тестовые данные
-        _seed_test_data(db_session)
-        db_session.commit()
+    category = Category(id=0, name="Beginner")
+    app.container.categories.add(category)
     
-    yield app.test_client()
-
-
-def _seed_test_data(session):
-    """Добавляем тестовые данные"""
-    from app.infrastructure.db import UserModel, CategoryModel, TaskModel
-    import bcrypt
+    flag_hash = bcrypt.hashpw(b"seculeti{test}", bcrypt.gensalt()).decode("utf-8")
+    task = Task(id=0, title="Test", description="Test", flag_hash=flag_hash, points=100, category_id=category.id)
+    app.container.tasks.add(task)
     
-    # Создаем админа
-    admin = session.query(UserModel).filter_by(username="admin").first()
-    if not admin:
-        hashed = bcrypt.hashpw(b"admin123", bcrypt.gensalt()).decode("utf-8")
-        admin = UserModel(username="admin", password=hashed, role="admin")
-        session.add(admin)
-        session.flush()
-    
-    # Создаем категорию
-    cat = session.query(CategoryModel).filter_by(name="Beginner").first()
-    if not cat:
-        cat = CategoryModel(name="Beginner")
-        session.add(cat)
-        session.flush()
-    
-    # Создаем задачу
-    task = session.query(TaskModel).filter_by(title="Без комментариев").first()
-    if not task:
-        flag_hash = bcrypt.hashpw(b"seculeti{Plz_D0nt_C0mm3nt_th1$}", bcrypt.gensalt()).decode("utf-8")
-        task = TaskModel(
-            title="Без комментариев",
-            description="Тестовое задание",
-            flag_hash=flag_hash,
-            points=15,
-            category_id=cat.id
-        )
-        session.add(task)
+    return app.test_client()
