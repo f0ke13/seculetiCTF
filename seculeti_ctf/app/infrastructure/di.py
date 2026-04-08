@@ -27,7 +27,7 @@ from ..usecases.auth import LoginUserUseCase, RegisterUserUseCase
 from ..usecases.leaderboard import LeaderboardUseCase
 from ..usecases.submissions import ForfeitTaskUseCase, SubmitFlagUseCase
 from ..usecases.suggestions import ListSuggestionsUseCase, SubmitSuggestionUseCase
-from ..usecases.tasks import CategoryOverviewUseCase, TaskDetailUseCase, TasksByTitleUseCase
+from ..usecases.tasks import CategoryOverviewUseCase, CategoryTasksUseCase, TaskDetailUseCase, TasksByTitleUseCase
 from ..usecases.writeups import ListWriteupsUseCase, SubmitWriteupUseCase
 from .db import InMemoryDB, create_db
 
@@ -45,6 +45,7 @@ class Container:
     register_uc: RegisterUserUseCase
     category_uc: CategoryOverviewUseCase
     task_detail_uc: TaskDetailUseCase
+    category_tasks_uc: CategoryTasksUseCase
     titles_uc: TasksByTitleUseCase
     submit_flag_uc: SubmitFlagUseCase
     forfeit_uc: ForfeitTaskUseCase
@@ -86,6 +87,7 @@ def build_container() -> Container:
         register_uc=RegisterUserUseCase(users),
         category_uc=CategoryOverviewUseCase(categories, tasks, solves),
         task_detail_uc=TaskDetailUseCase(categories, tasks, solves),
+        category_tasks_uc=CategoryTasksUseCase(categories, tasks, solves),
         titles_uc=TasksByTitleUseCase(tasks, solves),
         submit_flag_uc=SubmitFlagUseCase(tasks, solves),
         forfeit_uc=ForfeitTaskUseCase(tasks, solves),

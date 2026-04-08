@@ -75,6 +75,38 @@ class TaskDetailUseCase:
         raise NotFoundError("Задание не найдено")
 
 
+@dataclass
+class CategoryTasksView:
+    category: Category
+    tasks: List[Task]
+    solved_task_ids: List[int]
+
+
+class CategoryTasksUseCase:
+    def __init__(
+        self,
+        categories: CategoryRepository,
+        tasks: TaskRepository,
+        solves: SolveRepository,
+    ) -> None:
+        self._categories = categories
+        self._tasks = tasks
+        self._solves = solves
+
+    def execute(self, user_id: int, category_name: str) -> CategoryTasksView:
+        category = self._find_category(category_name)
+        tasks = list(self._tasks.list_by_category_id(category.id))
+        solves = [s for s in self._solves.list_by_user(user_id) if not s.is_forfeit]
+        solved_ids = [s.task_id for s in solves]
+        return CategoryTasksView(category=category, tasks=tasks, solved_task_ids=solved_ids)
+
+    def _find_category(self, category_name: str) -> Category:
+        for category in self._categories.list_all():
+            if category.name.lower() == category_name.lower():
+                return category
+        raise NotFoundError("Категория не найдена")
+
+
 class TasksByTitleUseCase:
     def __init__(self, tasks: TaskRepository, solves: SolveRepository) -> None:
         self._tasks = tasks

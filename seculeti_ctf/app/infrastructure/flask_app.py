@@ -38,6 +38,7 @@ def create_app() -> Flask:
         app,
         container.category_uc,
         container.task_detail_uc,
+        container.category_tasks_uc,
         container.titles_uc,
         container.submit_flag_uc,
         container.forfeit_uc,

@@ -1,12 +1,13 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OSINT — SECULETI</title>
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SECULETI — OSINT</title>
 
-    <style>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+
+<style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         html, body {
@@ -350,63 +351,14 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            text-decoration: none;
+            color: white;
         }
         .task-card:hover { transform: translateY(-8px); box-shadow: 0 0 40px rgba(255,255,255,0.25); }
         .task-card.solved { border-color: #0f0; background: rgba(20,40,20,0.95); }
         .task-info h2 { font-size: 1.85rem; margin-bottom: 8px; }
         .solved-text { color: #0f0; font-weight: 700; }
 
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: rgba(0,0,0,0.92);
-            z-index: 100;
-            align-items: center;
-            justify-content: center;
-        }
-        .modal-content {
-            background: #111;
-            border: 1px solid #ffffff;
-            border-radius: 16px;
-            width: 90%;
-            max-width: 720px;
-            padding: 50px 45px;
-            position: relative;
-        }
-        .close {
-            position: absolute;
-            top: 20px; right: 25px;
-            font-size: 2.2rem;
-            cursor: pointer;
-            opacity: 0.7;
-        }
-        .close:hover { opacity: 1; }
-
-        .points {
-            font-size: 1.4rem;
-            font-weight: 700;
-            color: #ffffff;
-            background: rgba(255,255,255,0.1);
-            padding: 8px 20px;
-            border-radius: 8px;
-            border: 1px solid #ffffff;
-            display: inline-block;
-            margin-bottom: 25px;
-        }
-
-        .download-btn {
-            display: inline-block;
-            background: white;
-            color: black;
-            padding: 14px 42px;
-            border-radius: 10px;
-            font-weight: 600;
-            text-decoration: none;
-            transition: 0.3s;
-        }
-        .download-btn:hover { background: #e0e0e0; transform: translateY(-3px); }
     </style>
 </head>
 <body>
@@ -437,26 +389,28 @@
     <div class="container">
         <h1>OSINT</h1>
 
-        <div id="taskCard" class="task-card {% if solved %}solved{% endif %}" data-solved="{{ 'true' if solved else 'false' }}">
-            <div class="task-info">
-                <h2>Анонимный спортсмен</h2>
-                <p id="statusText">
-                    {% if solved %}<span class="solved-text">Решено ✓</span>{% else %}Привет, я слышал, что ты можешь вычислить человека по IP...{% endif %}
-                </p>
-            </div>
-            <div class="points">1000</div>
-        </div>
-    </div>
-</div>
-
-<!-- Модальное окно -->
-<div id="modal" class="modal">
-    <div class="modal-content">
-        <span class="close" onclick="closeModal()">×</span>
-        <h2>Анонимный спортсмен</h2>
-        <div class="points">1000 баллов</div>
-        <p>Привет, я слышал, что ты можешь вычислить человека по IP? В общем тут один комментатор решил оскорбить меня, меня это уж очень задело. Я знаю, что он ходит в спортзал в своём доме, думаю переговорить с ним по душам. Мне бы вот только название этой качалки узнать. Я тут порылся по боту "Ухо Бога", но нашел лишь одно сообщение, толку от него, конечно, мало, но я в тебя верю.</p>
-        <a href="https://disk.yandex.ru/i/AgPmrqkI8C5Ifg" target="_blank" class="download-btn">Скачать</a>
+        {% if tasks %}
+            {% for task in tasks %}
+                <a
+                    class="task-card {% if task.id in solved_tasks %}solved{% endif %}"
+                    href="{{ url_for('task_detail', category_name=category.name|lower, task_name=task.title|replace(' ', '_')) }}"
+                >
+                    <div class="task-info">
+                        <h2>{{ task.title }}</h2>
+                        <p>
+                            {% if task.id in solved_tasks %}
+                                <span class="solved-text">Решено ✓</span>
+                            {% else %}
+                                {{ task.description[:120] }}{% if task.description|length > 120 %}...{% endif %}
+                            {% endif %}
+                        </p>
+                    </div>
+                    <div class="points">{{ task.points }}</div>
+                </a>
+            {% endfor %}
+        {% else %}
+            <p>Задач пока нет.</p>
+        {% endif %}
     </div>
 </div>
 
@@ -475,10 +429,6 @@
         .then(r => r.json())
         .then((data) => {
             if (data.success) {
-                const card = document.getElementById('taskCard');
-                card.classList.add('solved');
-                card.setAttribute('data-solved', 'true');
-                document.getElementById('statusText').innerHTML = '<span class="solved-text">Решено ✓</span>';
                 alert(data.message);
             } else {
                 alert(data.message);
@@ -486,17 +436,6 @@
         })
         .catch(() => alert("Ошибка соединения"));
     }
-
-    function openModal() {
-        document.getElementById('modal').style.display = 'flex';
-    }
-
-    function closeModal() {
-        document.getElementById('modal').style.display = 'none';
-    }
-
-    // Клик по карточке
-    document.getElementById('taskCard').addEventListener('click', openModal);
 </script>
 
 </body>

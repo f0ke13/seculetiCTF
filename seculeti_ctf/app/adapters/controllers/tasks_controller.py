@@ -4,7 +4,7 @@ from flask import flash, jsonify, redirect, render_template, request, session, u
 
 from ...domain.exceptions import NotFoundError
 from ...usecases.submissions import ForfeitTaskUseCase, SubmitFlagUseCase
-from ...usecases.tasks import CategoryOverviewUseCase, TaskDetailUseCase, TasksByTitleUseCase
+from ...usecases.tasks import CategoryOverviewUseCase, CategoryTasksUseCase, TaskDetailUseCase, TasksByTitleUseCase
 from .common import login_required
 
 
@@ -12,6 +12,7 @@ def register_task_routes(
     app,
     category_uc: CategoryOverviewUseCase,
     task_detail_uc: TaskDetailUseCase,
+    category_tasks_uc: CategoryTasksUseCase,
     titles_uc: TasksByTitleUseCase,
     submit_flag_uc: SubmitFlagUseCase,
     forfeit_uc: ForfeitTaskUseCase,
@@ -65,22 +66,31 @@ def register_task_routes(
     @app.route("/osint")
     @login_required
     def osint():
-        task, solved = titles_uc.execute(session["user_id"], ["Анонимный спортсмен"])[0]
-        return render_template("osint.html", task=task, solved=solved)
+        try:
+            view = category_tasks_uc.execute(user_id=session["user_id"], category_name="OSINT")
+        except NotFoundError as exc:
+            flash(str(exc), "error")
+            return redirect(url_for("category"))
+        return render_template(
+            "osint.html",
+            category=view.category,
+            tasks=view.tasks,
+            solved_tasks=view.solved_task_ids,
+        )
 
     @app.route("/beginner")
     @login_required
     def beginner():
-        titles = ["Без комментариев", "Little Osinter", "Крипто-ключ"]
-        results = titles_uc.execute(session["user_id"], titles)
-        task1_solved = results[0][1]
-        task2_solved = results[1][1]
-        task3_solved = results[2][1]
+        try:
+            view = category_tasks_uc.execute(user_id=session["user_id"], category_name="Beginner")
+        except NotFoundError as exc:
+            flash(str(exc), "error")
+            return redirect(url_for("category"))
         return render_template(
             "begginer.html",
-            task1_solved=task1_solved,
-            task2_solved=task2_solved,
-            task3_solved=task3_solved,
+            category=view.category,
+            tasks=view.tasks,
+            solved_tasks=view.solved_task_ids,
         )
 
     @app.route("/tasks/<int:task_id>/forfeit", methods=["POST"])
