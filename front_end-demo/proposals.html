@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SECULETI — Предложения</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body { height: 100%; }
+
+body {
+    font-family: 'Space Grotesk', sans-serif;
+    min-height: 100vh;
+    background: #0a0a0a;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+.main-content {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 40px 20px;
+    overflow: auto;
+}
+
+body::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image:
+        linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    animation: moveGrid 25s linear infinite;
+    pointer-events: none;
+}
+
+@keyframes moveGrid {
+    from { background-position: 0 0; }
+    to { background-position: -40px -40px; }
+}
+
+body::after {
+    content: "";
+    position: fixed;
+    width: 800px;
+    height: 800px;
+    background: radial-gradient(circle, rgba(255,255,255,0.06) 0%, transparent 70%);
+    filter: blur(100px);
+    animation: pulse 7s ease-in-out infinite alternate;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+}
+
+@keyframes pulse {
+    from { transform: translate(-50%, -50%) scale(1); }
+    to   { transform: translate(-50%, -50%) scale(1.18); }
+}
+
+nav {
+    position: relative;
+    z-index: 1000;
+    background: transparent;
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    padding: 15px 0;
+    overflow: hidden;
+}
+
+nav::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background:
+        repeating-linear-gradient(
+            0deg,
+            transparent,
+            transparent 1px,
+            rgba(255,255,255,0.03) 1px,
+            rgba(255,255,255,0.03) 2px
+        );
+    pointer-events: none;
+    animation: scanMove 4s linear infinite;
+}
+
+@keyframes scanMove {
+    0% { background-position: 0 0; }
+    100% { background-position: 0 4px; }
+}
+
+.nav-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+    display: flex;
+    align-items: center;
+    gap: 40px;
+    position: relative;
+    z-index: 1;
+}
+
+.logo {
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: 4px;
+    color: white;
+    text-decoration: none;
+    text-transform: uppercase;
+}
+
+.nav-links {
+    display: flex;
+    gap: 30px;
+    align-items: center;
+    margin-left: auto;
+}
+
+.nav-links a {
+    color: rgba(255,255,255,0.7);
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    transition: all 0.2s ease;
+}
+
+.nav-links a:hover { color: white; }
+
+.logout-btn {
+    background: rgba(255,255,255,0.08);
+    padding: 8px 20px;
+    border-radius: 8px;
+    border: 1px solid rgba(255,255,255,0.2);
+    color: white;
+    text-decoration: none;
+}
+
+.container {
+    position: relative;
+    width: 90%;
+    max-width: 980px;
+    padding: 50px 40px;
+    background: rgba(20,20,20,0.78);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255,255,255,0.09);
+    border-radius: 20px;
+    box-shadow: 0 0 60px rgba(255,255,255,0.04);
+    z-index: 2;
+}
+
+h1, h2 {
+    font-family: 'Courier New', Courier, monospace;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    margin-bottom: 20px;
+}
+
+.controls {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.btn {
+    padding: 10px 22px;
+    background: white;
+    color: black;
+    border: none;
+    font-weight: 600;
+    cursor: pointer;
+    border-radius: 7px;
+    letter-spacing: 1px;
+}
+
+.panel {
+    display: none;
+    margin: 20px 0 30px;
+    padding: 24px;
+    background: rgba(15,15,15,0.95);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 12px;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 13px;
+    opacity: 0.8;
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+    width: 100%;
+    padding: 10px 12px;
+    background: #111;
+    color: white;
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 7px;
+    font-family: inherit;
+}
+
+.proposal-list {
+    display: grid;
+    gap: 16px;
+}
+
+.proposal-card {
+    border: 1px solid rgba(255,255,255,0.2);
+    background: rgba(15,15,15,0.92);
+    padding: 18px 20px;
+    border-radius: 12px;
+}
+
+.proposal-meta {
+    opacity: 0.75;
+    font-size: 13px;
+    margin: 8px 0 10px;
+}
+
+.flash {
+    padding: 12px 14px;
+    margin-bottom: 16px;
+    border-radius: 8px;
+    font-size: 14px;
+}
+
+.flash.success { background: rgba(0, 255, 0, 0.1); border: 1px solid #0f0; }
+.flash.error { background: rgba(255, 0, 0, 0.1); border: 1px solid #f44; }
+</style>
+</head>
+<body>
+
+<nav>
+    <div class="nav-container">
+        <a href="{{ url_for('category') }}" class="logo">SECULETI</a>
+        <div class="nav-links">
+            <a href="{{ url_for('about') }}">О НАС</a>
+            <a href="{{ url_for('category') }}">КАТЕГОРИИ</a>
+            <a href="{{ url_for('leaderboard') }}">РЕЙТИНГ</a>
+            <a href="{{ url_for('suggest') }}">ПРЕДЛОЖЕНИЯ</a>
+            <a href="{{ url_for('writeups') }}">РАЙТАПЫ</a>
+            <a href="{{ url_for('logout') }}" class="logout-btn">ВЫХОД</a>
+        </div>
+    </div>
+</nav>
+
+<div class="main-content">
+    <div class="container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              <div class="flash {{ category }}">{{ message }}</div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+
+        <h1>Мои предложения</h1>
+        <div class="controls">
+            <button class="btn" onclick="toggleProposalForm()">+ Добавить</button>
+        </div>
+
+        <div id="proposalForm" class="panel">
+            <h2>Новое предложение</h2>
+            <form method="POST" action="{{ url_for('suggest_submit') }}">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Название</label>
+                        <input type="text" name="title" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Категория</label>
+                        <select name="category_id" required>
+                            {% for cat in categories %}
+                            <option value="{{ cat.id }}">{{ cat.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Сложность</label>
+                        <select name="difficulty">
+                            <option value="easy">Easy</option>
+                            <option value="medium" selected>Medium</option>
+                            <option value="hard">Hard</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Очки</label>
+                        <input type="number" name="points" value="100">
+                    </div>
+                </div>
+                <div class="form-grid" style="margin-top: 12px;">
+                    <div class="form-group" style="grid-column: 1 / -1;">
+                        <label>Описание</label>
+                        <textarea name="description" required rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Флаг</label>
+                        <input type="text" name="flag" required>
+                    </div>
+                </div>
+                <button type="submit" class="btn" style="margin-top: 12px;">Отправить</button>
+            </form>
+        </div>
+
+        {% if proposals %}
+            <div class="proposal-list">
+                {% for p in proposals %}
+                <div class="proposal-card">
+                    <h3>{{ p.title }}</h3>
+                    <div class="proposal-meta">
+                        Статус: {{ p.status }} · Сложность: {{ p.difficulty }} · Очки: {{ p.points }}
+                    </div>
+                    <p>{{ p.description }}</p>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p>Вы пока не предлагали задач.</p>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+function toggleProposalForm() {
+    const form = document.getElementById('proposalForm');
+    form.style.display = form.style.display === 'block' ? 'none' : 'block';
+}
+</script>
+
+</body>
+</html>

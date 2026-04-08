@@ -430,6 +430,8 @@
             <a href="{{ url_for('about') }}" data-text="О НАС">О НАС</a>
             <a href="{{ url_for('category') }}" data-text="КАТЕГОРИИ">КАТЕГОРИИ</a>
             <a href="{{ url_for('leaderboard') }}" data-text="РЕЙТИНГ">РЕЙТИНГ</a>
+            <a href="{{ url_for('suggest') }}" data-text="ПРЕДЛОЖЕНИЯ">ПРЕДЛОЖЕНИЯ</a>
+            <a href="{{ url_for('writeups') }}" data-text="РАЙТАПЫ">РАЙТАПЫ</a>
             {% if session.get('user_id') %}
                 <a href="{{ url_for('logout') }}" class="logout-btn" onclick="return confirm('Выйти?');">ВЫХОД</a>
             {% endif %}
@@ -535,8 +537,6 @@
     }
 
     function openModal(taskNum) {
-        const card = document.getElementById('task' + taskNum + 'Card');
-        if (card.getAttribute('data-solved') === 'true') return;
         document.getElementById('modal' + taskNum).style.display = 'flex';
     }
 

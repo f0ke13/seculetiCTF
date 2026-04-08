@@ -424,6 +424,8 @@
             <a href="{{ url_for('about') }}">О НАС</a>
             <a href="{{ url_for('category') }}">КАТЕГОРИИ</a>
             <a href="{{ url_for('leaderboard') }}">РЕЙТИНГ</a>
+            <a href="{{ url_for('suggest') }}">ПРЕДЛОЖЕНИЯ</a>
+            <a href="{{ url_for('writeups') }}">РАЙТАПЫ</a>
             {% if session.get('user_id') %}
                 <a href="{{ url_for('logout') }}" class="logout-btn" onclick="return confirm('Выйти?');">ВЫХОД</a>
             {% endif %}
@@ -486,9 +488,7 @@
     }
 
     function openModal() {
-        if (document.getElementById('taskCard').getAttribute('data-solved') !== 'true') {
-            document.getElementById('modal').style.display = 'flex';
-        }
+        document.getElementById('modal').style.display = 'flex';
     }
 
     function closeModal() {

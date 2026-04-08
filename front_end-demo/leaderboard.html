@@ -510,6 +510,8 @@ nav .logout-btn:hover {
             {% if session.get('user_id') %}
                 <a href="{{ url_for('category') }}" data-text="КАТЕГОРИИ">КАТЕГОРИИ</a>
                 <a href="{{ url_for('leaderboard') }}" data-text="РЕЙТИНГ">РЕЙТИНГ</a>
+                <a href="{{ url_for('suggest') }}" data-text="ПРЕДЛОЖЕНИЯ">ПРЕДЛОЖЕНИЯ</a>
+                <a href="{{ url_for('writeups') }}" data-text="РАЙТАПЫ">РАЙТАПЫ</a>
                 <a href="#" class="logout-btn" data-text="ВЫХОД" onclick="if(confirm('Выйти?')) window.location.href='{{ url_for('logout') }}'; return false;">ВЫХОД</a>
             {% else %}
                 <a href="{{ url_for('leaderboard') }}" data-text="РЕЙТИНГ">РЕЙТИНГ</a>
