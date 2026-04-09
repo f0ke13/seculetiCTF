@@ -1,5 +1,3 @@
-# seculeti_ctf/app/tests/test_inmemory.py
-
 import sys
 from pathlib import Path
 
